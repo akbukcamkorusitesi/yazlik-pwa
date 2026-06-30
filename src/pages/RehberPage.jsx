@@ -34,6 +34,17 @@ export default function RehberPage() {
     <div className="sayfa">
       <h1 className="sayfa-baslik">Sakin Rehberi</h1>
 
+      <div style={{ display: 'flex', gap: 14, marginBottom: '0.75rem', fontSize: 12, color: 'var(--metin3)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yesil-bg)', border: '1px solid var(--yesil)', display: 'inline-block' }} />
+          Şu an sitede
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yüzey)', border: '1px solid var(--kenarlık)', display: 'inline-block' }} />
+          Sitede değil
+        </span>
+      </div>
+
       <input
         className="form-girdi"
         placeholder="İsim veya daire ara..."
