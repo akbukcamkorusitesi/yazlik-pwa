@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 
 export default function ProfilPage() {
-  const { user, sakin, isAdmin, cikisYap } = useAuth()
+  const { user, sakin, sakinler, coklu, aktifSakinId, daireSec, isAdmin, cikisYap } = useAuth()
   const [duzenleme, setDuzenleme] = useState(false)
   const [form, setForm] = useState(sakin ? {
     adi: sakin.adi, soyadi: sakin.soyadi,
@@ -58,6 +58,28 @@ export default function ProfilPage() {
           {isAdmin && <span className="rozet rozet-inceleniyor" style={{ marginTop: 4, display: 'inline-block' }}>Admin</span>}
         </div>
       </div>
+
+      {coklu && (
+        <div className="kart" style={{ marginBottom: '1rem' }}>
+          <p className="form-etiket" style={{ marginBottom: 8 }}>Birden fazla daireniz var, görüntülenecek daireyi seçin:</p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {sakinler.map(s => (
+              <button
+                key={s.id}
+                onClick={() => daireSec(s.id)}
+                style={{
+                  padding: '8px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer',
+                  border: s.id === aktifSakinId ? '1.5px solid var(--yesil)' : '0.5px solid var(--kenarlık)',
+                  background: s.id === aktifSakinId ? 'var(--yesil-bg)' : '#fff',
+                  color: s.id === aktifSakinId ? 'var(--yesil)' : 'var(--metin2)',
+                  fontWeight: s.id === aktifSakinId ? 600 : 400
+                }}>
+                Daire {s.daire_no || s.daire}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {sakin && (
         <div className="kart" style={{ marginBottom: '1rem' }}>
