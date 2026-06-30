@@ -15,13 +15,13 @@ export default function RehberPage() {
     const { data } = await supabase
       .from('sakinler')
       .select('id, daire, daire_no, adi, soyadi, ceptel, ceptel2, tel1, email, konum')
-      .order('daire')
+      .order('daire_no', { ascending: true, nullsFirst: false })
     setSakinler(data || [])
     setYukleniyor(false)
   }
 
   const filtreli = sakinler.filter(s =>
-    `${s.adi} ${s.soyadi} ${s.daire}`.toLowerCase().includes(arama.toLowerCase())
+    `${s.adi} ${s.soyadi} ${s.daire} ${s.daire_no || ''}`.toLowerCase().includes(arama.toLowerCase())
   )
 
   const basTutar = (s) => {
