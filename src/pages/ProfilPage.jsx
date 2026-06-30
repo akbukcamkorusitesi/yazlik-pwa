@@ -53,7 +53,7 @@ export default function ProfilPage() {
         <div>
           <p style={{ fontWeight: 600, fontSize: 16 }}>{sakin ? `${sakin.adi} ${sakin.soyadi}` : 'Yönetici'}</p>
           <p style={{ color: 'var(--metin3)', fontSize: 13 }}>
-            {sakin ? `Daire ${sakin.daire}` : 'Admin hesabı'} · {user?.email}
+            {sakin ? `Daire ${sakin.daire_no || sakin.daire}` : 'Admin hesabı'} · {user?.email}
           </p>
           {isAdmin && <span className="rozet rozet-inceleniyor" style={{ marginTop: 4, display: 'inline-block' }}>Admin</span>}
         </div>

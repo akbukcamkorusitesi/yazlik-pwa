@@ -14,7 +14,7 @@ export default function RehberPage() {
   async function fetchSakinler() {
     const { data } = await supabase
       .from('sakinler')
-      .select('id, daire, adi, soyadi, ceptel, ceptel2, tel1, email, konum')
+      .select('id, daire, daire_no, adi, soyadi, ceptel, ceptel2, tel1, email, konum')
       .order('daire')
     setSakinler(data || [])
     setYukleniyor(false)
@@ -65,7 +65,10 @@ export default function RehberPage() {
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontWeight: 500, fontSize: 15 }}>{s.adi} {s.soyadi}</p>
-                <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {s.daire}</p>
+                <p style={{ color: 'var(--metin3)', fontSize: 13 }}>
+                  {s.daire_no ? `Daire ${s.daire_no}` : `Daire ${s.daire}`}
+                  {s.daire_no && <span style={{ color: 'var(--metin3)', opacity: 0.6 }}> · {s.daire}</span>}
+                </p>
               </div>
               <span style={{ color: 'var(--metin3)', fontSize: 18 }}>{secili?.id === s.id ? '▲' : '▼'}</span>
             </div>
@@ -101,7 +104,10 @@ export default function RehberPage() {
               </div>
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 600 }}>{secili.adi} {secili.soyadi}</h2>
-                <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {secili.daire}</p>
+                <p style={{ color: 'var(--metin3)', fontSize: 13 }}>
+                  {secili.daire_no ? `Daire ${secili.daire_no}` : `Daire ${secili.daire}`}
+                  {secili.daire_no && <span style={{ opacity: 0.6 }}> · {secili.daire}</span>}
+                </p>
               </div>
             </div>
             <div className="ayirici" />

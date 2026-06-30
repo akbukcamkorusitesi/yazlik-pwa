@@ -48,7 +48,7 @@ export default function AnasayfaPage() {
           <h1 className="sayfa-baslik" style={{ marginBottom: 2 }}>
             {sakin ? `Merhaba, ${sakin.adi}` : 'Duyurular'}
           </h1>
-          {sakin && <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {sakin.daire}</p>}
+          {sakin && <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {sakin.daire_no || sakin.daire}</p>}
         </div>
         {isAdmin && (
           <button className="btn btn-ikincil" onClick={() => setYeniForm(!yeniForm)} style={{ padding: '8px 14px', fontSize: 13 }}>
