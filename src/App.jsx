@@ -7,6 +7,7 @@ import RehberPage from './pages/RehberPage'
 import TaleplerPage from './pages/TaleplerPage'
 import AidatlarPage from './pages/AidatlarPage'
 import ProfilPage from './pages/ProfilPage'
+import HesapYonetimiPage from './pages/HesapYonetimiPage'
 
 function KorumalıRota({ children }) {
   const { user, loading } = useAuth()
@@ -29,6 +30,7 @@ function AppIci() {
         <Route path="/talepler" element={<KorumalıRota><TaleplerPage /></KorumalıRota>} />
         <Route path="/aidatlar" element={<KorumalıRota><AidatlarPage /></KorumalıRota>} />
         <Route path="/profil" element={<KorumalıRota><ProfilPage /></KorumalıRota>} />
+        <Route path="/hesap-yonetimi" element={<KorumalıRota><HesapYonetimiPage /></KorumalıRota>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {user && <AltNav />}
