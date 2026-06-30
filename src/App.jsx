@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './hooks/useAuth'
 import AltNav from './components/AltNav'
 import GirisPage from './pages/GirisPage'
+import KayitOlPage from './pages/KayitOlPage'
 import AnasayfaPage from './pages/AnasayfaPage'
 import RehberPage from './pages/RehberPage'
 import TaleplerPage from './pages/TaleplerPage'
@@ -26,6 +27,7 @@ function AppIci() {
     <BrowserRouter basename="/yazlik-pwa">
       <Routes>
         <Route path="/giris" element={user ? <Navigate to="/" replace /> : <GirisPage />} />
+        <Route path="/kayit-ol" element={user ? <Navigate to="/" replace /> : <KayitOlPage />} />
         <Route path="/" element={<KorumalıRota><AnasayfaPage /></KorumalıRota>} />
         <Route path="/rehber" element={<KorumalıRota><RehberPage /></KorumalıRota>} />
         <Route path="/talepler" element={<KorumalıRota><TaleplerPage /></KorumalıRota>} />
