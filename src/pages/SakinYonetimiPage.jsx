@@ -139,6 +139,20 @@ export default function SakinYonetimiPage() {
     fetchSakinler()
   }
 
+  async function sifreSifirla(s) {
+    if (!s.user_id) { alert('Bu sakinin hesabı yok, önce hesap açılmalı.'); return }
+    if (!confirm(`${s.adi} ${s.soyadi} için şifre telefon numarasının son 6 hanesine sıfırlanacak ve giriş telefonla yapılacak şekilde ayarlanacak. Devam edilsin mi?`)) return
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const { data, error } = await supabase.functions.invoke('sifre-sifirla', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: { sakin_id: s.id, telefona_cevir: true }
+    })
+
+    if (error) { alert('Sıfırlanamadı: ' + error.message); return }
+    alert(`Şifre sıfırlandı!\n\nGiriş: ${data.email}\nŞifre: ${data.sifre}\n\nBu bilgiyi sakine iletin.`)
+  }
+
   const filtreli = sakinler.filter(s =>
     `${s.adi} ${s.soyadi} ${s.daire} ${s.daire_no || ''}`.toLowerCase().includes(arama.toLowerCase())
   )
@@ -252,6 +266,11 @@ export default function SakinYonetimiPage() {
               <button onClick={() => duzenleAc(s)} style={{ background: 'var(--mavi-bg)', color: 'var(--mavi)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
                 Düzenle
               </button>
+              {s.user_id && (
+                <button onClick={() => sifreSifirla(s)} style={{ background: 'var(--sari-bg)', color: 'var(--sari)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
+                  🔑
+                </button>
+              )}
               <button onClick={() => sakinSil(s)} style={{ background: 'var(--turuncu-bg)', color: 'var(--turuncu)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
                 Sil
               </button>
