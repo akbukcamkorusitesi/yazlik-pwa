@@ -108,6 +108,15 @@ export default function ProfilPage() {
         </div>
       )}
 
+      {isAdmin && (
+        <button
+          className="btn btn-ikincil"
+          onClick={() => window.location.href = '/yazlik-pwa/hesap-yonetimi'}
+          style={{ width: '100%', marginBottom: '1rem' }}>
+          🔑 Sakin Hesaplarını Yönet
+        </button>
+      )}
+
       <button className="btn btn-tehlike" onClick={cikisYap} style={{ width: '100%' }}>
         Çıkış Yap
       </button>
