@@ -14,7 +14,7 @@ export default function RehberPage() {
   async function fetchSakinler() {
     const { data } = await supabase
       .from('sakinler')
-      .select('id, daire, daire_no, adi, soyadi, ceptel, ceptel2, tel1, email, konum')
+      .select('id, daire, daire_no, adi, soyadi, ceptel, ceptel2, tel1, email, konum, fotograf_url')
       .order('daire_no', { ascending: true, nullsFirst: false })
     setSakinler(data || [])
     setYukleniyor(false)
@@ -64,16 +64,27 @@ export default function RehberPage() {
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
               onClick={() => setSecili(secili?.id === s.id ? null : s)}
             >
-              <div style={{
-                width: 44, height: 44, borderRadius: '50%',
-                background: s.konum ? 'var(--yesil-bg)' : 'var(--yüzey)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: 14,
-                color: s.konum ? 'var(--yesil)' : 'var(--metin3)',
-                flexShrink: 0
-              }}>
-                {basTutar(s)}
-              </div>
+              {s.fotograf_url ? (
+                <img
+                  src={s.fotograf_url}
+                  alt=""
+                  style={{
+                    width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', flexShrink: 0,
+                    border: s.konum ? '2px solid var(--yesil)' : '2px solid var(--kenarlık)'
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: 44, height: 44, borderRadius: '50%',
+                  background: s.konum ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 600, fontSize: 14,
+                  color: s.konum ? 'var(--yesil)' : 'var(--metin3)',
+                  flexShrink: 0
+                }}>
+                  {basTutar(s)}
+                </div>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontWeight: 500, fontSize: 15 }}>{s.adi} {s.soyadi}</p>
                 <p style={{ color: 'var(--metin3)', fontSize: 13 }}>
@@ -106,13 +117,17 @@ export default function RehberPage() {
             onClick={e => e.stopPropagation()}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: '50%',
-                background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'var(--yesil)'
-              }}>
-                {basTutar(secili)}
-              </div>
+              {secili.fotograf_url ? (
+                <img src={secili.fotograf_url} alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{
+                  width: 56, height: 56, borderRadius: '50%',
+                  background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'var(--yesil)'
+                }}>
+                  {basTutar(secili)}
+                </div>
+              )}
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 600 }}>{secili.adi} {secili.soyadi}</h2>
                 <p style={{ color: 'var(--metin3)', fontSize: 13 }}>
