@@ -15,6 +15,8 @@ export default function SakinYonetimiPage() {
   const [form, setForm] = useState(BOS_FORM)
   const [kaydediliyor, setKaydediliyor] = useState(false)
   const [hata, setHata] = useState('')
+  const [hesapArama, setHesapArama] = useState('')
+  const [hesapBaglaniyor, setHesapBaglaniyor] = useState(false)
 
   useEffect(() => { fetchSakinler() }, [])
 
@@ -45,6 +47,20 @@ export default function SakinYonetimiPage() {
     setDuzenlenenId(s.id)
     setFormAcik(true)
     setHata('')
+    setHesapArama('')
+  }
+
+  async function mevcutHesabaBagla(hedefSakin) {
+    if (!confirm(`Bu daireyi ${hedefSakin.adi} ${hedefSakin.soyadi}'nın hesabına bağlamak istediğinize emin misiniz? Bu kişi artık her iki daireyi de aynı hesapla görebilecek.`)) return
+    setHesapBaglaniyor(true)
+    const { error } = await supabase
+      .from('sakinler')
+      .update({ user_id: hedefSakin.user_id })
+      .eq('id', duzenlenenId)
+    setHesapBaglaniyor(false)
+    if (error) { setHata(error.message); return }
+    setFormAcik(false)
+    fetchSakinler()
   }
 
   async function kaydet(e) {
@@ -120,7 +136,11 @@ export default function SakinYonetimiPage() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontWeight: 500, fontSize: 14 }}>{s.adi} {s.soyadi}</p>
                 <p style={{ color: 'var(--metin3)', fontSize: 12 }}>
-                  {s.email || 'E-posta yok'} {s.user_id && <span style={{ color: 'var(--yesil)' }}>· Hesabı var</span>}
+                  {s.email || 'E-posta yok'}
+                  {s.user_id && <span style={{ color: 'var(--yesil)' }}> · Hesabı var</span>}
+                  {s.user_id && sakinler.filter(x => x.user_id === s.user_id).length > 1 && (
+                    <span style={{ color: 'var(--mavi)' }}> · {sakinler.filter(x => x.user_id === s.user_id).length} daire</span>
+                  )}
                 </p>
               </div>
               <button onClick={() => duzenleAc(s)} style={{ background: 'var(--mavi-bg)', color: 'var(--mavi)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
@@ -155,6 +175,65 @@ export default function SakinYonetimiPage() {
             <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: '1rem' }}>
               {duzenlenenId ? 'Sakin Düzenle' : 'Yeni Sakin Ekle'}
             </h2>
+
+            {duzenlenenId && (() => {
+              const buSakin = sakinler.find(s => s.id === duzenlenenId)
+              if (!buSakin) return null
+              return (
+                <div style={{ background: 'var(--yüzey)', borderRadius: 10, padding: '0.85rem', marginBottom: '1rem' }}>
+                  <p className="form-etiket" style={{ marginBottom: 6 }}>
+                    {buSakin.user_id ? '✓ Bu dairenin giriş hesabı var' : 'Bu daireyi mevcut bir hesaba bağla'}
+                  </p>
+                  {buSakin.user_id ? (
+                    <p style={{ fontSize: 12, color: 'var(--metin3)' }}>
+                      Hesap zaten bağlı. Aynı kişinin başka bir dairesi varsa, o dairenin düzenleme ekranından buraya bağlayabilirsiniz.
+                    </p>
+                  ) : (
+                    <>
+                      <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 8 }}>
+                        Bu kişinin zaten başka bir dairede hesabı varsa, burada arayıp seçerek aynı hesaba bağlayabilirsiniz — yeni hesap açmaya gerek kalmaz.
+                      </p>
+                      <input
+                        className="form-girdi"
+                        placeholder="İsim ile ara..."
+                        value={hesapArama}
+                        onChange={e => setHesapArama(e.target.value)}
+                        style={{ marginBottom: 8, fontSize: 13 }}
+                      />
+                      {hesapArama.trim().length > 1 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 160, overflowY: 'auto' }}>
+                          {sakinler
+                            .filter(s => s.user_id && s.id !== duzenlenenId &&
+                              `${s.adi} ${s.soyadi}`.toLowerCase().includes(hesapArama.toLowerCase()))
+                            .slice(0, 5)
+                            .map(s => (
+                              <button
+                                key={s.id}
+                                type="button"
+                                onClick={() => mevcutHesabaBagla(s)}
+                                disabled={hesapBaglaniyor}
+                                style={{
+                                  textAlign: 'left', padding: '8px 10px', borderRadius: 8,
+                                  border: '0.5px solid var(--kenarlık)', background: '#fff',
+                                  fontSize: 13, cursor: 'pointer'
+                                }}>
+                                <strong>{s.adi} {s.soyadi}</strong>
+                                <span style={{ color: 'var(--metin3)' }}> — Daire {s.daire_no || s.daire}</span>
+                              </button>
+                            ))}
+                          {sakinler.filter(s => s.user_id && s.id !== duzenlenenId &&
+                            `${s.adi} ${s.soyadi}`.toLowerCase().includes(hesapArama.toLowerCase())).length === 0 && (
+                            <p style={{ fontSize: 12, color: 'var(--metin3)' }}>Hesabı olan eşleşen kişi bulunamadı.</p>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                  <div className="ayirici" style={{ marginTop: 10, marginBottom: 0 }} />
+                </div>
+              )
+            })()}
+
             <form onSubmit={kaydet}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <div className="form-grup">
