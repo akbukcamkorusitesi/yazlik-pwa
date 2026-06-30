@@ -7,7 +7,7 @@ export default function HesapYonetimiPage() {
   const [hata, setHata] = useState('')
 
   async function topluOlustur() {
-    if (!confirm('E-postası kayıtlı ama henüz hesabı olmayan tüm sakinler için giriş hesabı oluşturulacak. Devam edilsin mi?')) return
+    if (!confirm('E-posta veya telefonu kayıtlı, henüz hesabı olmayan tüm sakinler için giriş hesabı oluşturulacak. Devam edilsin mi?')) return
     setCalisiyor(true)
     setHata('')
     setSonuclar(null)
@@ -26,8 +26,10 @@ export default function HesapYonetimiPage() {
   function csvIndir() {
     if (!sonuclar) return
     const basarili = sonuclar.filter(s => s.durum === 'basarili')
-    const baslik = 'Daire,Ad Soyad,E-posta,Şifre\n'
-    const satirlar = basarili.map(s => `${s.daire},"${s.adi}",${s.email},${s.sifre}`).join('\n')
+    const baslik = 'Daire,Ad Soyad,Giriş Yöntemi,Kullanıcı Adı,Şifre\n'
+    const satirlar = basarili.map(s =>
+      `${s.daire},"${s.adi}",${s.yontem === 'telefon' ? 'Telefon' : 'E-posta'},${s.email},${s.sifre}`
+    ).join('\n')
     const blob = new Blob(['\ufeff' + baslik + satirlar], { type: 'text/csv;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -39,16 +41,20 @@ export default function HesapYonetimiPage() {
 
   const basariliSayisi = sonuclar?.filter(s => s.durum === 'basarili').length || 0
   const hataliSayisi = sonuclar?.filter(s => s.durum === 'hata').length || 0
+  const atlananSayisi = sonuclar?.filter(s => s.durum === 'atlandi').length || 0
 
   return (
     <div className="sayfa">
       <h1 className="sayfa-baslik">Hesap Yönetimi</h1>
 
       <div className="kart" style={{ marginBottom: '1rem' }}>
-        <p style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: '1rem' }}>
-          E-postası kayıtlı ama henüz giriş hesabı olmayan sakinler için otomatik hesap ve şifre oluşturur.
-          Daha önce hesap açılmış sakinler tekrar işlenmez.
+        <p style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: '0.5rem' }}>
+          Henüz hesabı olmayan sakinler için otomatik giriş hesabı oluşturur:
         </p>
+        <ul style={{ fontSize: 13, color: 'var(--metin2)', paddingLeft: 18, marginBottom: '1rem' }}>
+          <li>E-postası varsa → rastgele şifre üretilir</li>
+          <li>E-postası yok ama telefonu varsa → telefon ile giriş, şifre = telefonun son 6 hanesi</li>
+        </ul>
         <button className="btn btn-ana" onClick={topluOlustur} disabled={calisiyor}>
           {calisiyor ? 'Oluşturuluyor...' : 'Eksik Hesapları Oluştur'}
         </button>
@@ -62,7 +68,7 @@ export default function HesapYonetimiPage() {
 
       {sonuclar && (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: '1rem' }}>
             <div className="kart" style={{ background: 'var(--yesil-bg)' }}>
               <p style={{ fontSize: 12, color: 'var(--yesil)' }}>Başarılı</p>
               <p style={{ fontSize: 22, fontWeight: 600, color: 'var(--yesil)' }}>{basariliSayisi}</p>
@@ -70,6 +76,10 @@ export default function HesapYonetimiPage() {
             <div className="kart" style={{ background: hataliSayisi > 0 ? 'var(--turuncu-bg)' : 'var(--yüzey)' }}>
               <p style={{ fontSize: 12, color: hataliSayisi > 0 ? 'var(--turuncu)' : 'var(--metin3)' }}>Hatalı</p>
               <p style={{ fontSize: 22, fontWeight: 600, color: hataliSayisi > 0 ? 'var(--turuncu)' : 'var(--metin3)' }}>{hataliSayisi}</p>
+            </div>
+            <div className="kart" style={{ background: 'var(--yüzey)' }}>
+              <p style={{ fontSize: 12, color: 'var(--metin3)' }}>Atlandı</p>
+              <p style={{ fontSize: 22, fontWeight: 600, color: 'var(--metin3)' }}>{atlananSayisi}</p>
             </div>
           </div>
 
@@ -84,13 +94,15 @@ export default function HesapYonetimiPage() {
               <div key={i} className="kart" style={{ fontSize: 13 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontWeight: 500 }}>{s.adi} (Daire {s.daire})</span>
-                  <span className={`rozet ${s.durum === 'basarili' ? 'rozet-normal' : 'rozet-acil'}`}>
-                    {s.durum === 'basarili' ? 'Oluşturuldu' : 'Hata'}
+                  <span className={`rozet ${s.durum === 'basarili' ? 'rozet-normal' : s.durum === 'hata' ? 'rozet-acil' : 'rozet-bekliyor'}`}>
+                    {s.durum === 'basarili' ? 'Oluşturuldu' : s.durum === 'hata' ? 'Hata' : 'Atlandı'}
                   </span>
                 </div>
-                <p style={{ color: 'var(--metin3)', marginTop: 4 }}>{s.email}</p>
+                {s.email && <p style={{ color: 'var(--metin3)', marginTop: 4 }}>{s.email}</p>}
                 {s.durum === 'basarili' ? (
-                  <p style={{ color: 'var(--yesil)', fontWeight: 600, marginTop: 2 }}>Şifre: {s.sifre}</p>
+                  <p style={{ color: 'var(--yesil)', fontWeight: 600, marginTop: 2 }}>
+                    Şifre: {s.sifre} {s.yontem === 'telefon' && <span style={{ fontWeight: 400, color: 'var(--metin3)' }}>(telefonla giriş)</span>}
+                  </p>
                 ) : (
                   <p style={{ color: 'var(--turuncu)', marginTop: 2 }}>{s.mesaj}</p>
                 )}

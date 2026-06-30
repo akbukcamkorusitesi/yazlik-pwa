@@ -1,9 +1,19 @@
 import { useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 
+function girdiyiEmaileCevir(girdi) {
+  const temiz = girdi.trim()
+  // E-posta formatına benziyorsa olduğu gibi kullan
+  if (temiz.includes('@')) return temiz
+  // Sadece rakamlardan oluşuyorsa (telefon girilmiş demektir) sahte e-postaya çevir
+  const sadeceRakam = temiz.replace(/\D/g, '')
+  if (sadeceRakam.length >= 6) return `${sadeceRakam}@yazlik.local`
+  return temiz
+}
+
 export default function GirisPage() {
   const { girisYap } = useAuth()
-  const [email, setEmail] = useState('')
+  const [girdi, setGirdi] = useState('')
   const [sifre, setSifre] = useState('')
   const [hata, setHata] = useState('')
   const [yukleniyor, setYukleniyor] = useState(false)
@@ -12,8 +22,9 @@ export default function GirisPage() {
     e.preventDefault()
     setHata('')
     setYukleniyor(true)
+    const email = girdiyiEmaileCevir(girdi)
     const { error } = await girisYap(email, sifre)
-    if (error) setHata('E-posta veya şifre hatalı.')
+    if (error) setHata('Bilgileriniz hatalı. E-posta/telefon veya şifrenizi kontrol edin.')
     setYukleniyor(false)
   }
 
@@ -28,15 +39,15 @@ export default function GirisPage() {
       <div className="kart">
         <form onSubmit={handleSubmit}>
           <div className="form-grup">
-            <label className="form-etiket">E-posta</label>
+            <label className="form-etiket">E-posta veya Telefon</label>
             <input
               className="form-girdi"
-              type="email"
-              placeholder="ad@email.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
+              type="text"
+              placeholder="ad@email.com veya 5xx xxx xx xx"
+              value={girdi}
+              onChange={e => setGirdi(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
           <div className="form-grup">
@@ -61,6 +72,7 @@ export default function GirisPage() {
       </div>
 
       <p style={{ textAlign: 'center', color: 'var(--metin3)', fontSize: 12, marginTop: '1.5rem' }}>
+        Telefonla girişte ilk şifreniz telefon numaranızın son 6 hanesidir.<br/>
         Hesabınız yoksa site yöneticisiyle iletişime geçin.
       </p>
     </div>
