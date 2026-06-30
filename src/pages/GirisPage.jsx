@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 function girdiyiEmaileCevir(girdi) {
@@ -73,7 +74,7 @@ export default function GirisPage() {
 
       <p style={{ textAlign: 'center', color: 'var(--metin3)', fontSize: 12, marginTop: '1.5rem' }}>
         Telefonla girişte ilk şifreniz telefon numaranızın son 6 hanesidir.<br/>
-        Hesabınız yoksa site yöneticisiyle iletişime geçin.
+        Hesabınız yoksa <Link to="/kayit-ol" style={{ color: 'var(--yesil)', fontWeight: 500 }}>buradan başvuru</Link> yapabilirsiniz.
       </p>
     </div>
   )
