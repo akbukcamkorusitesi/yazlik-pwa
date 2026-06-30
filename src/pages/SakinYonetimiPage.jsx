@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase'
 
 const BOS_FORM = {
   daire: '', daire_no: '', adi: '', soyadi: '', tc_kimlik: '',
-  es_adi: '', ceptel: '', ceptel2: '', tel1: '', email: '', ev_adresi: '', konum: 0
+  es_adi: '', baba_adi: '', anne_adi: '', ceptel: '', ceptel2: '', tel1: '', email: '', ev_adresi: '',
+  plaka: '', cocuk_sayisi: '', aciklama: '', fotograf_url: '', konum: 0
 }
 
 export default function SakinYonetimiPage() {
@@ -14,6 +15,7 @@ export default function SakinYonetimiPage() {
   const [duzenlenenId, setDuzenlenenId] = useState(null)
   const [form, setForm] = useState(BOS_FORM)
   const [kaydediliyor, setKaydediliyor] = useState(false)
+  const [fotografYukleniyor, setFotografYukleniyor] = useState(false)
   const [hata, setHata] = useState('')
   const [hesapArama, setHesapArama] = useState('')
   const [hesapBaglaniyor, setHesapBaglaniyor] = useState(false)
@@ -80,9 +82,10 @@ export default function SakinYonetimiPage() {
   function duzenleAc(s) {
     setForm({
       daire: s.daire || '', daire_no: s.daire_no || '', adi: s.adi || '', soyadi: s.soyadi || '',
-      tc_kimlik: s.tc_kimlik || '', es_adi: s.es_adi || '', ceptel: s.ceptel || '',
-      ceptel2: s.ceptel2 || '', tel1: s.tel1 || '', email: s.email || '',
-      ev_adresi: s.ev_adresi || '', konum: s.konum || 0
+      tc_kimlik: s.tc_kimlik || '', es_adi: s.es_adi || '', baba_adi: s.baba_adi || '', anne_adi: s.anne_adi || '',
+      ceptel: s.ceptel || '', ceptel2: s.ceptel2 || '', tel1: s.tel1 || '', email: s.email || '',
+      ev_adresi: s.ev_adresi || '', plaka: s.plaka || '', cocuk_sayisi: s.cocuk_sayisi ?? '',
+      aciklama: s.aciklama || '', fotograf_url: s.fotograf_url || '', konum: s.konum || 0
     })
     setDuzenlenenId(s.id)
     setFormAcik(true)
@@ -103,6 +106,32 @@ export default function SakinYonetimiPage() {
     fetchSakinler()
   }
 
+  async function fotografYukle(dosya) {
+    if (!dosya) return
+    setFotografYukleniyor(true)
+    setHata('')
+
+    const uzanti = dosya.name.split('.').pop()
+    const dosyaAdi = `${Date.now()}-${Math.random().toString(36).slice(2)}.${uzanti}`
+
+    const { error: yuklemeHatasi } = await supabase.storage
+      .from('sakin-fotograflari')
+      .upload(dosyaAdi, dosya, { cacheControl: '3600', upsert: false })
+
+    if (yuklemeHatasi) {
+      setHata('Fotoğraf yüklenemedi: ' + yuklemeHatasi.message)
+      setFotografYukleniyor(false)
+      return
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('sakin-fotograflari')
+      .getPublicUrl(dosyaAdi)
+
+    setForm(f => ({ ...f, fotograf_url: publicUrl }))
+    setFotografYukleniyor(false)
+  }
+
   async function kaydet(e) {
     e.preventDefault()
     setKaydediliyor(true)
@@ -111,6 +140,7 @@ export default function SakinYonetimiPage() {
     const veri = {
       ...form,
       daire_no: form.daire_no ? parseInt(form.daire_no) : null,
+      cocuk_sayisi: form.cocuk_sayisi !== '' ? parseInt(form.cocuk_sayisi) : null,
       konum: form.konum ? 1 : 0
     }
 
@@ -246,13 +276,17 @@ export default function SakinYonetimiPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {filtreli.map(s => (
             <div key={s.id} className="kart" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-                background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 600, fontSize: 13, color: 'var(--yesil)'
-              }}>
-                {s.daire_no || s.daire}
-              </div>
+              {s.fotograf_url ? (
+                <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{
+                  width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+                  background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 600, fontSize: 13, color: 'var(--yesil)'
+                }}>
+                  {s.daire_no || s.daire}
+                </div>
+              )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontWeight: 500, fontSize: 14 }}>{s.adi} {s.soyadi}</p>
                 <p style={{ color: 'var(--metin3)', fontSize: 12 }}>
@@ -384,9 +418,43 @@ export default function SakinYonetimiPage() {
                 <label className="form-etiket">TC Kimlik</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
               </div>
+
               <div className="form-grup">
-                <label className="form-etiket">Eş Adı</label>
-                <input className="form-girdi" value={form.es_adi} onChange={e => setForm(f => ({...f, es_adi: e.target.value}))} />
+                <label className="form-etiket">Fotoğraf</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {form.fotograf_url && (
+                    <img src={form.fotograf_url} alt="" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', border: '0.5px solid var(--kenarlık)' }} />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => fotografYukle(e.target.files?.[0])}
+                    disabled={fotografYukleniyor}
+                    style={{ fontSize: 12 }}
+                  />
+                </div>
+                {fotografYukleniyor && <p style={{ fontSize: 12, color: 'var(--metin3)', marginTop: 4 }}>Yükleniyor...</p>}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div className="form-grup">
+                  <label className="form-etiket">Eş Adı</label>
+                  <input className="form-girdi" value={form.es_adi} onChange={e => setForm(f => ({...f, es_adi: e.target.value}))} />
+                </div>
+                <div className="form-grup">
+                  <label className="form-etiket">Çocuk Sayısı</label>
+                  <input className="form-girdi" type="number" min="0" value={form.cocuk_sayisi} onChange={e => setForm(f => ({...f, cocuk_sayisi: e.target.value}))} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div className="form-grup">
+                  <label className="form-etiket">Baba Adı</label>
+                  <input className="form-girdi" value={form.baba_adi} onChange={e => setForm(f => ({...f, baba_adi: e.target.value}))} />
+                </div>
+                <div className="form-grup">
+                  <label className="form-etiket">Anne Adı</label>
+                  <input className="form-girdi" value={form.anne_adi} onChange={e => setForm(f => ({...f, anne_adi: e.target.value}))} />
+                </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <div className="form-grup">
@@ -409,6 +477,14 @@ export default function SakinYonetimiPage() {
               <div className="form-grup">
                 <label className="form-etiket">Ev Adresi</label>
                 <textarea className="form-girdi" rows={2} value={form.ev_adresi} onChange={e => setForm(f => ({...f, ev_adresi: e.target.value}))} style={{ resize: 'vertical' }} />
+              </div>
+              <div className="form-grup">
+                <label className="form-etiket">Plaka</label>
+                <input className="form-girdi" placeholder="34 ABC 123" value={form.plaka} onChange={e => setForm(f => ({...f, plaka: e.target.value}))} />
+              </div>
+              <div className="form-grup">
+                <label className="form-etiket">Not / Açıklama</label>
+                <textarea className="form-girdi" rows={2} value={form.aciklama} onChange={e => setForm(f => ({...f, aciklama: e.target.value}))} style={{ resize: 'vertical' }} placeholder="Yönetimin göreceği özel notlar..." />
               </div>
               <div className="form-grup" style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <input type="checkbox" checked={!!form.konum} onChange={e => setForm(f => ({...f, konum: e.target.checked}))} id="konum" style={{ width: 18, height: 18 }} />
