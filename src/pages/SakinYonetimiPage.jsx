@@ -17,8 +17,48 @@ export default function SakinYonetimiPage() {
   const [hata, setHata] = useState('')
   const [hesapArama, setHesapArama] = useState('')
   const [hesapBaglaniyor, setHesapBaglaniyor] = useState(false)
+  const [basvurular, setBasvurular] = useState([])
+  const [basvuruIsleniyor, setBasvuruIsleniyor] = useState(null)
+  const [eslesmeArama, setEslesmeArama] = useState({})
 
-  useEffect(() => { fetchSakinler() }, [])
+  useEffect(() => { fetchSakinler(); fetchBasvurular() }, [])
+
+  async function fetchBasvurular() {
+    const { data } = await supabase
+      .from('basvurular')
+      .select('*')
+      .eq('durum', 'bekliyor')
+      .order('created_at', { ascending: false })
+    setBasvurular(data || [])
+  }
+
+  async function basvuruOnayla(basvuru, eslesenSakinId = null) {
+    if (!confirm(`${basvuru.adi} ${basvuru.soyadi} (Daire ${basvuru.daire_no}) başvurusunu onaylamak istediğinize emin misiniz?`)) return
+    setBasvuruIsleniyor(basvuru.id)
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const { data, error } = await supabase.functions.invoke('basvuru-onayla', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: { basvuru_id: basvuru.id, eslesen_sakin_id: eslesenSakinId }
+    })
+
+    setBasvuruIsleniyor(null)
+
+    if (error) { alert('Onaylanamadı: ' + error.message); return }
+    if (data?.sifre) {
+      alert(`Hesap oluşturuldu!\n\nKullanıcı adı: ${data.email}\nŞifre: ${data.sifre}\n\nBu bilgiyi sakine iletin.`)
+    } else {
+      alert('Mevcut hesaba bağlandı.')
+    }
+    fetchBasvurular()
+    fetchSakinler()
+  }
+
+  async function basvuruReddet(basvuru) {
+    if (!confirm(`${basvuru.adi} ${basvuru.soyadi} başvurusunu reddetmek istediğinize emin misiniz?`)) return
+    await supabase.from('basvurular').update({ durum: 'reddedildi', islenme_tarihi: new Date().toISOString() }).eq('id', basvuru.id)
+    fetchBasvurular()
+  }
 
   async function fetchSakinler() {
     setYukleniyor(true)
@@ -119,6 +159,72 @@ export default function SakinYonetimiPage() {
         onChange={e => setArama(e.target.value)}
         style={{ marginBottom: '1rem' }}
       />
+
+      {basvurular.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 8 }}>
+            📋 Bekleyen Başvurular ({basvurular.length})
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {basvurular.map(b => {
+              const arananMetin = eslesmeArama[b.id] || ''
+              const eslesenler = arananMetin.trim().length > 1
+                ? sakinler.filter(s => s.user_id && `${s.adi} ${s.soyadi}`.toLowerCase().includes(arananMetin.toLowerCase())).slice(0, 5)
+                : []
+              return (
+                <div key={b.id} className="kart" style={{ borderLeft: '3px solid var(--sari)' }}>
+                  <p style={{ fontWeight: 500, fontSize: 14 }}>{b.adi} {b.soyadi} — Daire {b.daire_no}</p>
+                  <p style={{ color: 'var(--metin3)', fontSize: 13, marginTop: 2 }}>{b.telefon}</p>
+                  <p style={{ color: 'var(--metin3)', fontSize: 11, marginTop: 2 }}>
+                    {new Date(b.created_at).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      onClick={() => basvuruOnayla(b)}
+                      disabled={basvuruIsleniyor === b.id}
+                      className="btn"
+                      style={{ flex: 1, background: 'var(--yesil)', color: '#fff', fontSize: 13, padding: '8px' }}>
+                      {basvuruIsleniyor === b.id ? 'İşleniyor...' : '✓ Yeni Sakin Olarak Onayla'}
+                    </button>
+                    <button
+                      onClick={() => basvuruReddet(b)}
+                      disabled={basvuruIsleniyor === b.id}
+                      className="btn"
+                      style={{ background: 'var(--turuncu-bg)', color: 'var(--turuncu)', fontSize: 13, padding: '8px 12px' }}>
+                      Reddet
+                    </button>
+                  </div>
+
+                  <div style={{ marginTop: 8 }}>
+                    <input
+                      className="form-girdi"
+                      placeholder="Veya mevcut bir sakine bağlamak için isim arayın..."
+                      value={arananMetin}
+                      onChange={e => setEslesmeArama(prev => ({ ...prev, [b.id]: e.target.value }))}
+                      style={{ fontSize: 12, padding: '8px 10px' }}
+                    />
+                    {eslesenler.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                        {eslesenler.map(s => (
+                          <button
+                            key={s.id}
+                            onClick={() => basvuruOnayla(b, s.id)}
+                            disabled={basvuruIsleniyor === b.id}
+                            style={{ textAlign: 'left', padding: '6px 10px', borderRadius: 6, border: '0.5px solid var(--kenarlık)', background: '#fff', fontSize: 12, cursor: 'pointer' }}>
+                            <strong>{s.adi} {s.soyadi}</strong> — Daire {s.daire_no || s.daire} hesabına bağla
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          <div className="ayirici" style={{ marginTop: '1rem' }} />
+        </div>
+      )}
 
       {yukleniyor ? (
         <div className="yukleniyor">Yükleniyor...</div>
