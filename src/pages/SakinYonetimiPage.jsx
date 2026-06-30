@@ -22,6 +22,7 @@ export default function SakinYonetimiPage() {
   const [basvurular, setBasvurular] = useState([])
   const [basvuruIsleniyor, setBasvuruIsleniyor] = useState(null)
   const [eslesmeArama, setEslesmeArama] = useState({})
+  const [detayAcik, setDetayAcik] = useState(null)
 
   useEffect(() => { fetchSakinler(); fetchBasvurular() }, [])
 
@@ -276,26 +277,28 @@ export default function SakinYonetimiPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {filtreli.map(s => (
             <div key={s.id} className="kart" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {s.fotograf_url ? (
-                <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-              ) : (
-                <div style={{
-                  width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-                  background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontWeight: 600, fontSize: 13, color: 'var(--yesil)'
-                }}>
-                  {s.daire_no || s.daire}
+              <div onClick={() => setDetayAcik(s)} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0, cursor: 'pointer' }}>
+                {s.fotograf_url ? (
+                  <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                ) : (
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 8, flexShrink: 0,
+                    background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 600, fontSize: 13, color: 'var(--yesil)'
+                  }}>
+                    {s.daire_no || s.daire}
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 500, fontSize: 14 }}>{s.adi} {s.soyadi}</p>
+                  <p style={{ color: 'var(--metin3)', fontSize: 12 }}>
+                    {s.email || 'E-posta yok'}
+                    {s.user_id && <span style={{ color: 'var(--yesil)' }}> · Hesabı var</span>}
+                    {s.user_id && sakinler.filter(x => x.user_id === s.user_id).length > 1 && (
+                      <span style={{ color: 'var(--mavi)' }}> · {sakinler.filter(x => x.user_id === s.user_id).length} daire</span>
+                    )}
+                  </p>
                 </div>
-              )}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontWeight: 500, fontSize: 14 }}>{s.adi} {s.soyadi}</p>
-                <p style={{ color: 'var(--metin3)', fontSize: 12 }}>
-                  {s.email || 'E-posta yok'}
-                  {s.user_id && <span style={{ color: 'var(--yesil)' }}> · Hesabı var</span>}
-                  {s.user_id && sakinler.filter(x => x.user_id === s.user_id).length > 1 && (
-                    <span style={{ color: 'var(--mavi)' }}> · {sakinler.filter(x => x.user_id === s.user_id).length} daire</span>
-                  )}
-                </p>
               </div>
               <button onClick={() => duzenleAc(s)} style={{ background: 'var(--mavi-bg)', color: 'var(--mavi)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
                 Düzenle
@@ -317,6 +320,67 @@ export default function SakinYonetimiPage() {
               <p>Sonuç bulunamadı.</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Detay Görünümü Modal */}
+      {detayAcik && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'flex-end', zIndex: 200, overflowY: 'auto'
+        }} onClick={() => setDetayAcik(null)}>
+          <div
+            className="kart"
+            style={{ width: '100%', maxWidth: 480, margin: '0 auto', borderRadius: '16px 16px 0 0', padding: '1.25rem', maxHeight: '90vh', overflowY: 'auto' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+              {detayAcik.fotograf_url ? (
+                <img src={detayAcik.fotograf_url} alt="" style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover' }} />
+              ) : (
+                <div style={{
+                  width: 64, height: 64, borderRadius: 12, background: 'var(--yesil-bg)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontWeight: 700, fontSize: 20, color: 'var(--yesil)'
+                }}>
+                  {detayAcik.daire_no || detayAcik.daire}
+                </div>
+              )}
+              <div>
+                <h2 style={{ fontSize: 17, fontWeight: 600 }}>{detayAcik.adi} {detayAcik.soyadi}</h2>
+                <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {detayAcik.daire_no || detayAcik.daire}</p>
+              </div>
+            </div>
+
+            <div className="ayirici" />
+
+            {[
+              ['TC Kimlik', detayAcik.tc_kimlik],
+              ['Eş Adı', detayAcik.es_adi],
+              ['Çocuk Sayısı', detayAcik.cocuk_sayisi],
+              ['Baba Adı', detayAcik.baba_adi],
+              ['Anne Adı', detayAcik.anne_adi],
+              ['Cep Telefon', detayAcik.ceptel],
+              ['Cep Telefon 2', detayAcik.ceptel2],
+              ['Ev Telefonu', detayAcik.tel1],
+              ['E-posta', detayAcik.email],
+              ['Ev Adresi', detayAcik.ev_adresi],
+              ['Plaka', detayAcik.plaka],
+              ['Not / Açıklama', detayAcik.aciklama],
+            ].filter(([, v]) => v !== null && v !== undefined && v !== '').map(([label, val]) => (
+              <div key={label} style={{ padding: '8px 0', borderBottom: '0.5px solid var(--kenarlık)', fontSize: 14 }}>
+                <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{label}</span>
+                <p style={{ marginTop: 2 }}>{val}</p>
+              </div>
+            ))}
+
+            <button
+              className="btn btn-ikincil"
+              style={{ marginTop: '1rem', width: '100%' }}
+              onClick={() => setDetayAcik(null)}>
+              Kapat
+            </button>
+          </div>
         </div>
       )}
 
