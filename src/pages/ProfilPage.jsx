@@ -111,6 +111,15 @@ export default function ProfilPage() {
       {isAdmin && (
         <button
           className="btn btn-ikincil"
+          onClick={() => window.location.href = '/yazlik-pwa/sakin-yonetimi'}
+          style={{ width: '100%', marginBottom: '0.5rem' }}>
+          👥 Sakinleri Yönet
+        </button>
+      )}
+
+      {isAdmin && (
+        <button
+          className="btn btn-ikincil"
           onClick={() => window.location.href = '/yazlik-pwa/hesap-yonetimi'}
           style={{ width: '100%', marginBottom: '1rem' }}>
           🔑 Sakin Hesaplarını Yönet
