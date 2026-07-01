@@ -299,7 +299,15 @@ export default function SakinYonetimiPage() {
               <div onClick={() => setDetayAcik(s)} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0, cursor: 'pointer' }}>
                 <div style={{ position: 'relative', flexShrink: 0, width: 40, height: 40 }}>
                   {s.fotograf_url ? (
-                    <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', display: 'block' }} />
+                    <>
+                      <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', display: 'block' }} />
+                      <span style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        background: 'rgba(0,0,0,0.55)', color: '#fff',
+                        fontSize: 9, fontWeight: 700, textAlign: 'center',
+                        borderRadius: '0 0 8px 8px', padding: '1px 0', lineHeight: '14px'
+                      }}>{s.daire_no || s.daire}</span>
+                    </>
                   ) : (
                     <div style={{
                       width: 40, height: 40, borderRadius: 8,
