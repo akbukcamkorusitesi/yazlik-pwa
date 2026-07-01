@@ -373,6 +373,18 @@ export default function SakinYonetimiPage() {
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 600 }}>{detayAcik.adi} {detayAcik.soyadi}</h2>
                 <p style={{ color: 'var(--metin3)', fontSize: 13 }}>Daire {detayAcik.daire_no || detayAcik.daire}</p>
+                {detayAcik.user_id && (() => {
+                  const bagliDaireler = sakinler.filter(s => s.user_id === detayAcik.user_id && s.id !== detayAcik.id)
+                  return bagliDaireler.length > 0 ? (
+                    <div style={{ marginTop: 6, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {bagliDaireler.map(d => (
+                        <span key={d.id} className="rozet rozet-inceleniyor" style={{ fontSize: 11 }}>
+                          🔗 Daire {d.daire_no || d.daire} — {d.adi} {d.soyadi}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null
+                })()}
               </div>
             </div>
 
