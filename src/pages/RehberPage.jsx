@@ -68,7 +68,7 @@ export default function RehberPage() {
               style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
               onClick={() => setSecili(secili?.id === s.id ? null : s)}
             >
-              <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{ position: 'relative', flexShrink: 0, width: 44, height: 44 }}>
                 {s.fotograf_url ? (
                   <img
                     src={s.fotograf_url}
@@ -131,7 +131,7 @@ export default function RehberPage() {
             onClick={e => e.stopPropagation()}
           >
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-              <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{ position: 'relative', flexShrink: 0, width: 56, height: 56 }}>
                 {secili.fotograf_url ? (
                   <img src={secili.fotograf_url} alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
                 ) : (
