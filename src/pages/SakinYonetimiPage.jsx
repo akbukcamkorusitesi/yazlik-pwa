@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabase'
 const BOS_FORM = {
   daire: '', daire_no: '', adi: '', soyadi: '', tc_kimlik: '',
   es_adi: '', baba_adi: '', anne_adi: '', ceptel: '', ceptel2: '', tel1: '', email: '', ev_adresi: '',
-  plaka: '', cocuk_sayisi: '', aciklama: '', fotograf_url: '', konum: 0
+  plaka: '', cocuk_sayisi: '', aciklama: '', fotograf_url: '',
+  dogum_tarihi: '', dogum_yeri: '', meslek: '', konum: 0
 }
 
 export default function SakinYonetimiPage() {
@@ -86,7 +87,9 @@ export default function SakinYonetimiPage() {
       tc_kimlik: s.tc_kimlik || '', es_adi: s.es_adi || '', baba_adi: s.baba_adi || '', anne_adi: s.anne_adi || '',
       ceptel: s.ceptel || '', ceptel2: s.ceptel2 || '', tel1: s.tel1 || '', email: s.email || '',
       ev_adresi: s.ev_adresi || '', plaka: s.plaka || '', cocuk_sayisi: s.cocuk_sayisi ?? '',
-      aciklama: s.aciklama || '', fotograf_url: s.fotograf_url || '', konum: s.konum || 0
+      aciklama: s.aciklama || '', fotograf_url: s.fotograf_url || '',
+      dogum_tarihi: s.dogum_tarihi || '', dogum_yeri: s.dogum_yeri || '', meslek: s.meslek || '',
+      konum: s.konum || 0
     })
     setDuzenlenenId(s.id)
     setFormAcik(true)
@@ -142,6 +145,7 @@ export default function SakinYonetimiPage() {
       ...form,
       daire_no: form.daire_no ? parseInt(form.daire_no) : null,
       cocuk_sayisi: form.cocuk_sayisi !== '' ? parseInt(form.cocuk_sayisi) : null,
+      dogum_tarihi: form.dogum_tarihi || null,
       konum: form.konum ? 1 : 0
     }
 
@@ -356,6 +360,9 @@ export default function SakinYonetimiPage() {
 
             {[
               ['TC Kimlik', detayAcik.tc_kimlik],
+              ['Doğum Tarihi', detayAcik.dogum_tarihi ? new Date(detayAcik.dogum_tarihi).toLocaleDateString('tr-TR') : null],
+              ['Doğum Yeri', detayAcik.dogum_yeri],
+              ['Meslek', detayAcik.meslek],
               ['Eş Adı', detayAcik.es_adi],
               ['Çocuk Sayısı', detayAcik.cocuk_sayisi],
               ['Baba Adı', detayAcik.baba_adi],
@@ -481,6 +488,21 @@ export default function SakinYonetimiPage() {
               <div className="form-grup">
                 <label className="form-etiket">TC Kimlik</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div className="form-grup">
+                  <label className="form-etiket">Doğum Tarihi</label>
+                  <input className="form-girdi" type="date" value={form.dogum_tarihi} onChange={e => setForm(f => ({...f, dogum_tarihi: e.target.value}))} />
+                </div>
+                <div className="form-grup">
+                  <label className="form-etiket">Doğum Yeri</label>
+                  <input className="form-girdi" value={form.dogum_yeri} onChange={e => setForm(f => ({...f, dogum_yeri: e.target.value}))} />
+                </div>
+              </div>
+              <div className="form-grup">
+                <label className="form-etiket">Meslek</label>
+                <input className="form-girdi" value={form.meslek} onChange={e => setForm(f => ({...f, meslek: e.target.value}))} />
               </div>
 
               <div className="form-grup">
