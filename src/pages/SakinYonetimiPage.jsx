@@ -81,6 +81,35 @@ export default function SakinYonetimiPage() {
     setHata('')
   }
 
+  function csvIndir() {
+    if (sakinler.length === 0) { alert('İndirilecek veri yok.'); return }
+
+    const sutunlar = [
+      'daire_no','daire','adi','soyadi','tc_kimlik','es_adi','baba_adi','anne_adi',
+      'ceptel','ceptel2','tel1','email','ev_adresi','plaka','cocuk_sayisi',
+      'dogum_tarihi','dogum_yeri','meslek','aciklama','konum'
+    ]
+
+    const satirlar = sakinler.map(s =>
+      sutunlar.map(k => {
+        const val = s[k]
+        if (val === null || val === undefined) return ''
+        const str = String(val)
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"` : str
+      }).join(',')
+    )
+
+    const icerik = [sutunlar.join(','), ...satirlar].join('\n')
+    const blob = new Blob(['\ufeff' + icerik], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `sakinler-yedek-${new Date().toISOString().split('T')[0]}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function duzenleAc(s) {
     setForm({
       daire: s.daire || '', daire_no: s.daire_no || '', adi: s.adi || '', soyadi: s.soyadi || '',
@@ -211,9 +240,14 @@ export default function SakinYonetimiPage() {
     <div className="sayfa">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1 className="sayfa-baslik" style={{ marginBottom: 0 }}>Sakin Yönetimi</h1>
-        <button className="btn btn-ana" onClick={yeniEkleAc} style={{ padding: '8px 14px', fontSize: 13, width: 'auto' }}>
-          + Yeni Sakin
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="btn btn-ikincil" onClick={csvIndir} style={{ padding: '8px 12px', fontSize: 13, width: 'auto' }}>
+            📥 CSV
+          </button>
+          <button className="btn btn-ana" onClick={yeniEkleAc} style={{ padding: '8px 14px', fontSize: 13, width: 'auto' }}>
+            + Yeni Sakin
+          </button>
+        </div>
       </div>
 
       <input
