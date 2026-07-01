@@ -302,8 +302,10 @@ export default function SakinYonetimiPage() {
                 ) : (
                   <div style={{
                     width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-                    background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 600, fontSize: 13, color: 'var(--yesil)'
+                    background: s.konum === 2 ? 'var(--mavi-bg)' : s.konum === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontWeight: 600, fontSize: 13,
+                    color: s.konum === 2 ? 'var(--mavi)' : s.konum === 1 ? 'var(--yesil)' : 'var(--metin3)'
                   }}>
                     {s.daire_no || s.daire}
                   </div>
@@ -617,9 +619,29 @@ export default function SakinYonetimiPage() {
                 <label className="form-etiket">Not / Açıklama</label>
                 <textarea className="form-girdi" rows={2} value={form.aciklama} onChange={e => setForm(f => ({...f, aciklama: e.target.value}))} style={{ resize: 'vertical' }} placeholder="Yönetimin göreceği özel notlar..." />
               </div>
-              <div className="form-grup" style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <input type="checkbox" checked={!!form.konum} onChange={e => setForm(f => ({...f, konum: e.target.checked}))} id="konum" style={{ width: 18, height: 18 }} />
-                <label htmlFor="konum" className="form-etiket" style={{ margin: 0 }}>Şu anda sitede / yazlıkta</label>
+              <div className="form-grup">
+                <label className="form-etiket">Konum Durumu</label>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {[
+                    { val: 0, label: 'Sitede Değil', bg: 'var(--yüzey)', color: 'var(--metin3)', border: 'var(--kenarlık)' },
+                    { val: 1, label: 'Yazlıkçı', bg: 'var(--yesil-bg)', color: 'var(--yesil)', border: 'var(--yesil)' },
+                    { val: 2, label: 'Devamlı', bg: 'var(--mavi-bg)', color: 'var(--mavi)', border: 'var(--mavi)' },
+                  ].map(({ val, label, bg, color, border }) => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setForm(f => ({...f, konum: val}))}
+                      style={{
+                        flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, cursor: 'pointer',
+                        border: `1.5px solid ${form.konum === val ? border : 'var(--kenarlık)'}`,
+                        background: form.konum === val ? bg : '#fff',
+                        color: form.konum === val ? color : 'var(--metin3)',
+                        fontWeight: form.konum === val ? 600 : 400
+                      }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {hata && <p style={{ color: 'var(--turuncu)', fontSize: 13, marginBottom: 8 }}>{hata}</p>}

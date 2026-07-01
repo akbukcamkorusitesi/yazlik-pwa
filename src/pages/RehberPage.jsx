@@ -34,10 +34,14 @@ export default function RehberPage() {
     <div className="sayfa">
       <h1 className="sayfa-baslik">Sakin Rehberi</h1>
 
-      <div style={{ display: 'flex', gap: 14, marginBottom: '0.75rem', fontSize: 12, color: 'var(--metin3)' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: '0.75rem', fontSize: 12, color: 'var(--metin3)', flexWrap: 'wrap' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yesil-bg)', border: '1px solid var(--yesil)', display: 'inline-block' }} />
-          Şu an sitede
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yesil-acik)', border: '1px solid var(--yesil)', display: 'inline-block' }} />
+          Yazlıkçı
+        </span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--mavi)', border: '1px solid var(--mavi)', display: 'inline-block' }} />
+          Devamlı
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--yüzey)', border: '1px solid var(--kenarlık)', display: 'inline-block' }} />
@@ -74,20 +78,26 @@ export default function RehberPage() {
                 ) : (
                   <div style={{
                     width: 44, height: 44, borderRadius: '50%',
-                    background: s.konum ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                    background: s.konum === 2 ? 'var(--mavi-bg)' : s.konum === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontWeight: 600, fontSize: 14,
-                    color: s.konum ? 'var(--yesil)' : 'var(--metin3)'
+                    color: s.konum === 2 ? 'var(--mavi)' : s.konum === 1 ? 'var(--yesil)' : 'var(--metin3)'
                   }}>
                     {basTutar(s)}
                   </div>
                 )}
-                {s.konum ? (
+                {s.konum === 1 && (
                   <span style={{
                     position: 'absolute', bottom: -1, right: -1, width: 13, height: 13, borderRadius: '50%',
                     background: 'var(--yesil-acik)', border: '2px solid #fff'
                   }} />
-                ) : null}
+                )}
+                {s.konum === 2 && (
+                  <span style={{
+                    position: 'absolute', bottom: -1, right: -1, width: 13, height: 13, borderRadius: '50%',
+                    background: 'var(--mavi)', border: '2px solid #fff'
+                  }} />
+                )}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontWeight: 500, fontSize: 15 }}>{s.adi} {s.soyadi}</p>
@@ -127,18 +137,26 @@ export default function RehberPage() {
                 ) : (
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%',
-                    background: 'var(--yesil-bg)', display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', fontWeight: 700, fontSize: 18, color: 'var(--yesil)'
+                    background: secili.konum === 2 ? 'var(--mavi-bg)' : secili.konum === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                    display: 'flex', alignItems: 'center',
+                    justifyContent: 'center', fontWeight: 700, fontSize: 18,
+                    color: secili.konum === 2 ? 'var(--mavi)' : secili.konum === 1 ? 'var(--yesil)' : 'var(--metin3)'
                   }}>
                     {basTutar(secili)}
                   </div>
                 )}
-                {secili.konum ? (
+                {secili.konum === 1 && (
                   <span style={{
                     position: 'absolute', bottom: 0, right: 0, width: 16, height: 16, borderRadius: '50%',
                     background: 'var(--yesil-acik)', border: '2px solid #fff'
                   }} />
-                ) : null}
+                )}
+                {secili.konum === 2 && (
+                  <span style={{
+                    position: 'absolute', bottom: 0, right: 0, width: 16, height: 16, borderRadius: '50%',
+                    background: 'var(--mavi)', border: '2px solid #fff'
+                  }} />
+                )}
               </div>
               <div>
                 <h2 style={{ fontSize: 17, fontWeight: 600 }}>{secili.adi} {secili.soyadi}</h2>
