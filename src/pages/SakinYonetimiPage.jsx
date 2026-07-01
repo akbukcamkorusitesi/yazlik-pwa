@@ -188,6 +188,8 @@ export default function SakinYonetimiPage() {
     alert(data.mesaj)
     fetchSakinler()
   }
+
+  async function sifreSifirla(s) {
     if (!s.user_id) { alert('Bu sakinin hesabı yok, önce hesap açılmalı.'); return }
     if (!confirm(`${s.adi} ${s.soyadi} için şifre telefon numarasının son 6 hanesine sıfırlanacak ve giriş telefonla yapılacak şekilde ayarlanacak. Devam edilsin mi?`)) return
 
