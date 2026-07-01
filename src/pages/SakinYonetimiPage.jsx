@@ -297,19 +297,33 @@ export default function SakinYonetimiPage() {
           {filtreli.map(s => (
             <div key={s.id} className="kart" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div onClick={() => setDetayAcik(s)} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flex: 1, minWidth: 0, cursor: 'pointer' }}>
-                {s.fotograf_url ? (
-                  <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
-                ) : (
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 8, flexShrink: 0,
-                    background: s.konum === 2 ? 'var(--mavi-bg)' : s.konum === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontWeight: 600, fontSize: 13,
-                    color: s.konum === 2 ? 'var(--mavi)' : s.konum === 1 ? 'var(--yesil)' : 'var(--metin3)'
-                  }}>
-                    {s.daire_no || s.daire}
-                  </div>
-                )}
+                <div style={{ position: 'relative', flexShrink: 0, width: 40, height: 40 }}>
+                  {s.fotograf_url ? (
+                    <img src={s.fotograf_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', display: 'block' }} />
+                  ) : (
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 8,
+                      background: parseInt(s.konum) === 2 ? 'var(--mavi-bg)' : parseInt(s.konum) === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 600, fontSize: 13,
+                      color: parseInt(s.konum) === 2 ? 'var(--mavi)' : parseInt(s.konum) === 1 ? 'var(--yesil)' : 'var(--metin3)'
+                    }}>
+                      {s.daire_no || s.daire}
+                    </div>
+                  )}
+                  {parseInt(s.konum) === 1 && (
+                    <span style={{
+                      position: 'absolute', bottom: 2, right: 2, width: 10, height: 10, borderRadius: '50%',
+                      background: 'var(--yesil-acik)', border: '2px solid #fff'
+                    }} />
+                  )}
+                  {parseInt(s.konum) === 2 && (
+                    <span style={{
+                      position: 'absolute', bottom: 2, right: 2, width: 10, height: 10, borderRadius: '50%',
+                      background: 'var(--mavi)', border: '2px solid #fff'
+                    }} />
+                  )}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 500, fontSize: 14 }}>{s.adi} {s.soyadi}</p>
                   <p style={{ color: 'var(--metin3)', fontSize: 12 }}>
@@ -533,7 +547,7 @@ export default function SakinYonetimiPage() {
                 </div>
               </div>
               <div className="form-grup">
-                <label className="form-etiket">Web Girişi/TC</label>
+                <label className="form-etiket">Web Girişi</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
               </div>
 
