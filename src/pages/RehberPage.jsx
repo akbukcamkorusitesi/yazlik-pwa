@@ -78,23 +78,23 @@ export default function RehberPage() {
                 ) : (
                   <div style={{
                     width: 44, height: 44, borderRadius: '50%',
-                    background: s.konum === 2 ? 'var(--mavi-bg)' : s.konum === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
+                    background: parseInt(s.konum) === 2 ? 'var(--mavi-bg)' : parseInt(s.konum) === 1 ? 'var(--yesil-bg)' : 'var(--yüzey)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontWeight: 600, fontSize: 14,
-                    color: s.konum === 2 ? 'var(--mavi)' : s.konum === 1 ? 'var(--yesil)' : 'var(--metin3)'
+                    color: parseInt(s.konum) === 2 ? 'var(--mavi)' : parseInt(s.konum) === 1 ? 'var(--yesil)' : 'var(--metin3)'
                   }}>
                     {basTutar(s)}
                   </div>
                 )}
-                {s.konum === 1 && (
+                {parseInt(s.konum) === 1 && (
                   <span style={{
-                    position: 'absolute', bottom: -1, right: -1, width: 13, height: 13, borderRadius: '50%',
+                    position: 'absolute', bottom: 2, right: 2, width: 11, height: 11, borderRadius: '50%',
                     background: 'var(--yesil-acik)', border: '2px solid #fff'
                   }} />
                 )}
-                {s.konum === 2 && (
+                {parseInt(s.konum) === 2 && (
                   <span style={{
-                    position: 'absolute', bottom: -1, right: -1, width: 13, height: 13, borderRadius: '50%',
+                    position: 'absolute', bottom: 2, right: 2, width: 11, height: 11, borderRadius: '50%',
                     background: 'var(--mavi)', border: '2px solid #fff'
                   }} />
                 )}
@@ -145,13 +145,13 @@ export default function RehberPage() {
                     {basTutar(secili)}
                   </div>
                 )}
-                {secili.konum === 1 && (
+                {parseInt(secili.konum) === 1 && (
                   <span style={{
                     position: 'absolute', bottom: 0, right: 0, width: 16, height: 16, borderRadius: '50%',
                     background: 'var(--yesil-acik)', border: '2px solid #fff'
                   }} />
                 )}
-                {secili.konum === 2 && (
+                {parseInt(secili.konum) === 2 && (
                   <span style={{
                     position: 'absolute', bottom: 0, right: 0, width: 16, height: 16, borderRadius: '50%',
                     background: 'var(--mavi)', border: '2px solid #fff'
