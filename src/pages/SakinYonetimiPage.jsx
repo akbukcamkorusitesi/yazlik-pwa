@@ -391,7 +391,6 @@ export default function SakinYonetimiPage() {
             <div className="ayirici" />
 
             {[
-              ['TC Kimlik', detayAcik.tc_kimlik],
               ['Doğum Tarihi', detayAcik.dogum_tarihi ? new Date(detayAcik.dogum_tarihi).toLocaleDateString('tr-TR') : null],
               ['Doğum Yeri', detayAcik.dogum_yeri],
               ['Meslek', detayAcik.meslek],
@@ -447,9 +446,23 @@ export default function SakinYonetimiPage() {
                     {buSakin.user_id ? '✓ Bu dairenin giriş hesabı var' : 'Bu daireyi mevcut bir hesaba bağla'}
                   </p>
                   {buSakin.user_id ? (
-                    <p style={{ fontSize: 12, color: 'var(--metin3)' }}>
-                      Hesap zaten bağlı. Aynı kişinin başka bir dairesi varsa, o dairenin düzenleme ekranından buraya bağlayabilirsiniz.
-                    </p>
+                    <>
+                      <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 6 }}>
+                        Hesap zaten bağlı. Aynı kişinin başka bir dairesi varsa, o dairenin düzenleme ekranından buraya bağlayabilirsiniz.
+                      </p>
+                      {(() => {
+                        const bagliDaireler = sakinler.filter(s => s.user_id === buSakin.user_id && s.id !== duzenlenenId)
+                        return bagliDaireler.length > 0 ? (
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                            {bagliDaireler.map(d => (
+                              <span key={d.id} className="rozet rozet-inceleniyor" style={{ fontSize: 11 }}>
+                                🔗 Daire {d.daire_no || d.daire} — {d.adi} {d.soyadi}
+                              </span>
+                            ))}
+                          </div>
+                        ) : null
+                      })()}
+                    </>
                   ) : (
                     <>
                       <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 8 }}>
@@ -518,7 +531,7 @@ export default function SakinYonetimiPage() {
                 </div>
               </div>
               <div className="form-grup">
-                <label className="form-etiket">TC Kimlik</label>
+                <label className="form-etiket">Web Girişi/TC</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
               </div>
 
