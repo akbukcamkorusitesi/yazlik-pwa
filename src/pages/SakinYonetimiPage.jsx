@@ -174,7 +174,20 @@ export default function SakinYonetimiPage() {
     fetchSakinler()
   }
 
-  async function sifreSifirla(s) {
+  async function hesapBaglantisiKes(s) {
+    if (!s.user_id) { alert('Bu sakinin zaten hesap bağlantısı yok.'); return }
+    if (!confirm(`${s.adi} ${s.soyadi} (Daire ${s.daire_no || s.daire}) için hesap bağlantısı kesilecek. Eğer başka daireye bağlı değilse giriş hesabı da silinecek. Devam edilsin mi?`)) return
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const { data, error } = await supabase.functions.invoke('hesap-baglantisi-kes', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+      body: { sakin_id: s.id }
+    })
+
+    if (error) { alert('Hata: ' + error.message); return }
+    alert(data.mesaj)
+    fetchSakinler()
+  }
     if (!s.user_id) { alert('Bu sakinin hesabı yok, önce hesap açılmalı.'); return }
     if (!confirm(`${s.adi} ${s.soyadi} için şifre telefon numarasının son 6 hanesine sıfırlanacak ve giriş telefonla yapılacak şekilde ayarlanacak. Devam edilsin mi?`)) return
 
@@ -310,6 +323,11 @@ export default function SakinYonetimiPage() {
               {s.user_id && (
                 <button onClick={() => sifreSifirla(s)} style={{ background: 'var(--sari-bg)', color: 'var(--sari)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
                   🔑
+                </button>
+              )}
+              {s.user_id && (
+                <button onClick={() => hesapBaglantisiKes(s)} style={{ background: 'var(--turuncu-bg)', color: 'var(--turuncu)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }} title="Hesap bağlantısını kes">
+                  🔗
                 </button>
               )}
               <button onClick={() => sakinSil(s)} style={{ background: 'var(--turuncu-bg)', color: 'var(--turuncu)', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>
