@@ -156,16 +156,15 @@ export default function AidatAyarlarPage() {
         const adVar       = s.ad.length >= 3 && aciklama.includes(s.ad)
         const soyadVar    = s.soyad.length >= 3 && aciklama.includes(s.soyad)
 
-        // Daire no — açıklamada "51", "daire 51", "d51", "d.51" kalıpları
+        // Daire no — açıklamada tam sayı olarak geçmeli
         const dNo = s.daireNo
         const daireVar = dNo && (
-          aciklama.includes(`daire ${dNo}`) ||
-          aciklama.includes(`daire${dNo}`) ||
-          aciklama.includes(`d.${dNo}`) ||
-          aciklama.includes(`d${dNo} `) ||
-          aciklama.includes(` ${dNo} `) ||
-          aciklama.endsWith(` ${dNo}`) ||
-          aciklama.startsWith(`${dNo} `)
+          aciklama.includes(`daire ${dNo} `) ||
+          aciklama.includes(`daire ${dNo}\t`) ||
+          aciklama.endsWith(`daire ${dNo}`) ||
+          aciklama.includes(`daire${dNo} `) ||
+          aciklama.includes(`d.${dNo} `) ||
+          aciklama.endsWith(`d.${dNo}`)
         )
 
         // Öncelik sırası: tam isim > daire no > ad+soyad birlikte
