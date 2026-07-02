@@ -139,8 +139,12 @@ export default function AidatAyarlarPage() {
 
     for (const satir of ekstreVerisi) {
       const aciklama = (satir[eslestirme.aciklama] || '').toLowerCase()
-      const tutarStr = (satir[eslestirme.tutar] || '').replace(/[.,\s]/g, s => s === ',' ? '.' : '')
-      const tutar = parseFloat(tutarStr.replace(/[^\d.]/g, '')) || 0
+      // Türkçe format: 1.500,00 → önce binlik noktaları kaldır, sonra virgülü noktaya çevir
+      const tutarTemiz = (satir[eslestirme.tutar] || '')
+        .replace(/\./g, '')      // binlik nokta kaldır
+        .replace(',', '.')       // ondalık virgülü noktaya çevir
+        .replace(/[^\d.\-]/g, '') // sadece rakam, nokta ve eksi bırak
+      const tutar = parseFloat(tutarTemiz) || 0
       const tarih = eslestirme.tarih ? satir[eslestirme.tarih] : ''
 
       if (minTutar > 0 && tutar < minTutar) continue
@@ -149,7 +153,7 @@ export default function AidatAyarlarPage() {
       // Sakin eşleştir
       let eslesenSakin = null
       for (const s of sakinEslestirme) {
-        if (s.anahtarlar.some(k => k && aciklama.includes(k))) {
+        if (s.anahtarlar.some(k => k && k.length >= 3 && aciklama.includes(k))) {
           eslesenSakin = s
           break
         }
