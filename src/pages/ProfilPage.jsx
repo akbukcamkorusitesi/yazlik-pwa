@@ -1,10 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { pushDestekleniyorMu, bildirimIzniDurumu, bildirimleriAc, bildirimleriKapat } from '../lib/push'
 
 export default function ProfilPage() {
   const { user, sakin, sakinler, coklu, aktifSakinId, daireSec, isAdmin, cikisYap } = useAuth()
   const [duzenleme, setDuzenleme] = useState(false)
+  const [bildirimDurum, setBildirimDurum] = useState('default')
+  const [bildirimYukleniyor, setBildirimYukleniyor] = useState(false)
+
+  useEffect(() => {
+    bildirimIzniDurumu().then(setBildirimDurum)
+  }, [])
+
+  async function bildirimToggle() {
+    setBildirimYukleniyor(true)
+    try {
+      if (bildirimDurum === 'granted') {
+        await bildirimleriKapat()
+        setBildirimDurum('default')
+      } else {
+        await bildirimleriAc()
+        setBildirimDurum('granted')
+      }
+    } catch (err) {
+      alert(err.message)
+    }
+    setBildirimYukleniyor(false)
+  }
+
   const [form, setForm] = useState(sakin ? {
     adi: sakin.adi, soyadi: sakin.soyadi,
     ceptel: sakin.ceptel || '', ceptel2: sakin.ceptel2 || '',
@@ -58,6 +82,28 @@ export default function ProfilPage() {
           {isAdmin && <span className="rozet rozet-inceleniyor" style={{ marginTop: 4, display: 'inline-block' }}>Admin</span>}
         </div>
       </div>
+
+      {pushDestekleniyorMu() && (
+        <div className="kart" style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+          <div>
+            <p style={{ fontWeight: 500, fontSize: 14 }}>🔔 Bildirimler</p>
+            <p style={{ color: 'var(--metin3)', fontSize: 12, marginTop: 2 }}>
+              {bildirimDurum === 'granted' ? 'Açık — yeni duyurularda bildirim alırsınız' : 'Kapalı'}
+            </p>
+          </div>
+          <button
+            onClick={bildirimToggle}
+            disabled={bildirimYukleniyor || bildirimDurum === 'denied'}
+            className="btn"
+            style={{
+              fontSize: 12, padding: '8px 14px', whiteSpace: 'nowrap',
+              background: bildirimDurum === 'granted' ? 'var(--turuncu-bg)' : 'var(--yesil)',
+              color: bildirimDurum === 'granted' ? 'var(--turuncu)' : '#fff'
+            }}>
+            {bildirimYukleniyor ? '...' : bildirimDurum === 'granted' ? 'Kapat' : 'Aç'}
+          </button>
+        </div>
+      )}
 
       {coklu && (
         <div className="kart" style={{ marginBottom: '1rem' }}>
@@ -128,6 +174,15 @@ export default function ProfilPage() {
             </form>
           )}
         </div>
+      )}
+
+      {isAdmin && (
+        <button
+          className="btn btn-ikincil"
+          onClick={() => window.location.href = '/yazlik-pwa/aidat-ayarlar'}
+          style={{ width: '100%', marginBottom: '0.5rem' }}>
+          💰 Aidat Ayarları & Banka Ekstresi
+        </button>
       )}
 
       {isAdmin && (

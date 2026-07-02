@@ -22,6 +22,12 @@ export default function AidatlarPage() {
 
   // Toplu oluşturma state'leri
   const [topluTutar,     setTopluTutar]     = useState('500')
+
+  useEffect(() => {
+    // Ayarlardan aidat tutarını çek
+    supabase.from('ayarlar').select('deger').eq('anahtar', 'aidat_tutari').single()
+      .then(({ data }) => { if (data) setTopluTutar(data.deger) })
+  }, [])
   const [topluYukleniyor, setTopluYukleniyor] = useState(false)
   const [topluSonuc,     setTopluSonuc]     = useState(null)
   const [topluAcik,      setTopluAcik]      = useState(false)
