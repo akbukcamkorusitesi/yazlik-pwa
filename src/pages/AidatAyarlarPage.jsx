@@ -156,11 +156,17 @@ export default function AidatAyarlarPage() {
         const adVar       = s.ad.length >= 3 && aciklama.includes(s.ad)
         const soyadVar    = s.soyad.length >= 3 && aciklama.includes(s.soyad)
 
-        // Daire no — "DAİRE 51", " 51 ", "D51", "D.51" gibi kalıpları ara
-        const daireKalip  = s.daireNo
-          ? new RegExp(`(daire\\s*${s.daireNo}|\\bd\\.?${s.daireNo}\\b|\\s${s.daireNo}\\s|^${s.daireNo}\\s|\\s${s.daireNo}$)`)
-          : null
-        const daireVar    = daireKalip && daireKalip.test(aciklama)
+        // Daire no — açıklamada "51", "daire 51", "d51", "d.51" kalıpları
+        const dNo = s.daireNo
+        const daireVar = dNo && (
+          aciklama.includes(`daire ${dNo}`) ||
+          aciklama.includes(`daire${dNo}`) ||
+          aciklama.includes(`d.${dNo}`) ||
+          aciklama.includes(`d${dNo} `) ||
+          aciklama.includes(` ${dNo} `) ||
+          aciklama.endsWith(` ${dNo}`) ||
+          aciklama.startsWith(`${dNo} `)
+        )
 
         // Öncelik sırası: tam isim > daire no > ad+soyad birlikte
         if (tamIsimVar || tersIsimVar) { eslesenSakin = s; break }
