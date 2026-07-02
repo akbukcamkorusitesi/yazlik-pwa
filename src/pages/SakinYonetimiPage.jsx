@@ -449,7 +449,7 @@ export default function SakinYonetimiPage() {
             <div className="ayirici" />
 
             {[
-              ['TC Kimlik', detayAcik.tc_kimlik],
+              ['TC/Web', detayAcik.tc_kimlik],
               ['Doğum Tarihi', detayAcik.dogum_tarihi ? new Date(detayAcik.dogum_tarihi).toLocaleDateString('tr-TR') : null],
               ['Doğum Yeri', detayAcik.dogum_yeri],
               ['Meslek', detayAcik.meslek],
