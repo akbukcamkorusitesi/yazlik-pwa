@@ -123,10 +123,10 @@ export default function AidatAyarlarPage() {
     // Sakinlerin eşleştirme anahtar kelimelerini oluştur
     const sakinEslestirme = sakinler.map(s => ({
       ...s,
-      ad: s.adi?.toLowerCase() || '',
-      soyad: s.soyadi?.toLowerCase() || '',
-      tamIsim: `${s.adi?.toLowerCase()} ${s.soyadi?.toLowerCase()}`,
-      tersIsim: `${s.soyadi?.toLowerCase()} ${s.adi?.toLowerCase()}`,
+      ad: s.adi?.toLocaleLowerCase('tr-TR') || '',
+      soyad: s.soyadi?.toLocaleLowerCase('tr-TR') || '',
+      tamIsim: `${s.adi?.toLocaleLowerCase('tr-TR')} ${s.soyadi?.toLocaleLowerCase('tr-TR')}`,
+      tersIsim: `${s.soyadi?.toLocaleLowerCase('tr-TR')} ${s.adi?.toLocaleLowerCase('tr-TR')}`,
       daireNo: s.daire_no ? String(s.daire_no) : '',
     }))
 
@@ -135,7 +135,7 @@ export default function AidatAyarlarPage() {
     const eslesmeyenSakinler = new Set(sakinler.map(s => s.id))
 
     for (const satir of ekstreVerisi) {
-      const aciklama = (satir[eslestirme.aciklama] || '').toLowerCase()
+      const aciklama = (satir[eslestirme.aciklama] || '').toLocaleLowerCase('tr-TR')
       // Türkçe format: 1.500,00 → önce binlik noktaları kaldır, sonra virgülü noktaya çevir
       const tutarTemiz = (satir[eslestirme.tutar] || '')
         .replace(/\./g, '')      // binlik nokta kaldır
