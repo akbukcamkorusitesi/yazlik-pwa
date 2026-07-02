@@ -123,14 +123,10 @@ export default function AidatAyarlarPage() {
     // Sakinlerin eşleştirme anahtar kelimelerini oluştur
     const sakinEslestirme = sakinler.map(s => ({
       ...s,
-      anahtarlar: [
-        String(s.daire_no || ''),
-        s.daire?.toLowerCase() || '',
-        s.adi?.toLowerCase() || '',
-        s.soyadi?.toLowerCase() || '',
-        `${s.adi?.toLowerCase()} ${s.soyadi?.toLowerCase()}`,
-        `${s.soyadi?.toLowerCase()} ${s.adi?.toLowerCase()}`,
-      ].filter(Boolean)
+      ad: s.adi?.toLowerCase() || '',
+      soyad: s.soyadi?.toLowerCase() || '',
+      tamIsim: `${s.adi?.toLowerCase()} ${s.soyadi?.toLowerCase()}`,
+      tersIsim: `${s.soyadi?.toLowerCase()} ${s.adi?.toLowerCase()}`,
     }))
 
     const eslesen = []
@@ -147,16 +143,22 @@ export default function AidatAyarlarPage() {
       const tutar = parseFloat(tutarTemiz) || 0
       const tarih = eslestirme.tarih ? satir[eslestirme.tarih] : ''
 
+      if (tutar < 0) continue  // negatif tutarları her zaman atla (çıkış işlemleri)
       if (minTutar > 0 && tutar < minTutar) continue
       if (!aciklama) continue
 
       // Sakin eşleştir
       let eslesenSakin = null
       for (const s of sakinEslestirme) {
-        if (s.anahtarlar.some(k => k && k.length >= 3 && aciklama.includes(k))) {
-          eslesenSakin = s
-          break
-        }
+        const adVar   = s.ad.length >= 3 && aciklama.includes(s.ad)
+        const soyadVar = s.soyad.length >= 3 && aciklama.includes(s.soyad)
+        const tamIsimVar = aciklama.includes(s.tamIsim)
+        const tersIsimVar = aciklama.includes(s.tersIsim)
+
+        // Tam isim geçiyorsa kesin eşleşme
+        if (tamIsimVar || tersIsimVar) { eslesenSakin = s; break }
+        // Hem ad hem soyad ayrı ayrı geçiyorsa da eşleşme say
+        if (adVar && soyadVar) { eslesenSakin = s; break }
       }
 
       if (eslesenSakin) {
