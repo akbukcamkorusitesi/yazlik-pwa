@@ -103,6 +103,20 @@ export default function AidatlarPage() {
     fetchAidatlar()
   }
 
+  async function aidatSil(aidat) {
+    if (!confirm(`${AYLAR[aidat.ay - 1]} ${yil} aidat kaydını silmek istediğinize emin misiniz?`)) return
+    await supabase.from('aidatlar').delete().eq('id', aidat.id)
+    fetchAidatlar()
+  }
+
+  async function yilSil() {
+    if (!seciliSakin) return
+    const sakinAdi = sakinler.find(s => s.id === seciliSakin)
+    if (!confirm(`${sakinAdi?.adi} ${sakinAdi?.soyadi} için ${yil} yılına ait TÜM aidat kayıtları silinecek (ödenmiş olanlar dahil). Emin misiniz?`)) return
+    await supabase.from('aidatlar').delete().eq('sakin_id', seciliSakin).eq('yil', yil)
+    fetchAidatlar()
+  }
+
   // Yıllık toplu ödeme işaretle
   async function yillikOdemeToggle() {
     if (!isAdmin || !seciliSakin) return
@@ -192,18 +206,26 @@ export default function AidatlarPage() {
         </div>
       )}
 
-      {/* Yıllık toplu ödeme butonu */}
+      {/* Yıllık toplu ödeme + sil butonu */}
       {isAdmin && seciliSakin && aidatlar.length > 0 && (
-        <button
-          className="btn"
-          onClick={yillikOdemeToggle}
-          style={{
-            width: '100%', marginBottom: '1rem', fontSize: 13,
-            background: hepsiOdendi ? 'var(--turuncu-bg)' : 'var(--yesil)',
-            color: hepsiOdendi ? 'var(--turuncu)' : '#fff'
-          }}>
-          {hepsiOdendi ? `✕ ${yil} Yıllık Ödemeyi Geri Al` : `✓ ${yil} Yıllık Ödeme Yapıldı (Tümünü İşaretle)`}
-        </button>
+        <div style={{ display: 'flex', gap: 8, marginBottom: '1rem' }}>
+          <button
+            className="btn"
+            onClick={yillikOdemeToggle}
+            style={{
+              flex: 1, fontSize: 13,
+              background: hepsiOdendi ? 'var(--turuncu-bg)' : 'var(--yesil)',
+              color: hepsiOdendi ? 'var(--turuncu)' : '#fff'
+            }}>
+            {hepsiOdendi ? `✕ ${yil} Yıllık Ödemeyi Geri Al` : `✓ ${yil} Yıllık Ödendi`}
+          </button>
+          <button
+            className="btn"
+            onClick={yilSil}
+            style={{ background: 'var(--turuncu-bg)', color: 'var(--turuncu)', fontSize: 13, padding: '8px 12px' }}>
+            🗑 Yılı Sil
+          </button>
+        </div>
       )}
 
       {/* Aidat listesi */}
@@ -240,17 +262,28 @@ export default function AidatlarPage() {
                 {Number(a.tutar).toLocaleString('tr-TR')} ₺
               </span>
               {isAdmin ? (
-                <button
-                  onClick={() => odemeToggle(a)}
-                  style={{
-                    width: 28, height: 28, borderRadius: '50%', border: '2px solid',
-                    borderColor: a.odendi ? 'var(--yesil)' : 'var(--kenarlık)',
-                    background: a.odendi ? 'var(--yesil)' : 'transparent',
-                    color: a.odendi ? '#fff' : 'var(--metin3)',
-                    cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}>
-                  {a.odendi ? '✓' : ''}
-                </button>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <button
+                    onClick={() => odemeToggle(a)}
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', border: '2px solid',
+                      borderColor: a.odendi ? 'var(--yesil)' : 'var(--kenarlık)',
+                      background: a.odendi ? 'var(--yesil)' : 'transparent',
+                      color: a.odendi ? '#fff' : 'var(--metin3)',
+                      cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                    {a.odendi ? '✓' : ''}
+                  </button>
+                  <button
+                    onClick={() => aidatSil(a)}
+                    style={{
+                      width: 28, height: 28, borderRadius: '50%', border: '1px solid var(--kenarlık)',
+                      background: 'var(--turuncu-bg)', color: 'var(--turuncu)',
+                      cursor: 'pointer', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                    🗑
+                  </button>
+                </div>
               ) : (
                 <span className={`rozet ${a.odendi ? 'rozet-normal' : 'rozet-acil'}`}>
                   {a.odendi ? 'Ödendi' : 'Bekliyor'}
