@@ -590,7 +590,7 @@ export default function SakinYonetimiPage() {
                 </div>
               </div>
               <div className="form-grup">
-                <label className="form-etiket">Web Girişi</label>
+                <label className="form-etiket">TC/Web Girişi</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
               </div>
 
