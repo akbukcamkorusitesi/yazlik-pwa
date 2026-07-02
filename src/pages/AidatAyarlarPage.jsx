@@ -127,6 +127,7 @@ export default function AidatAyarlarPage() {
       soyad: s.soyadi?.toLowerCase() || '',
       tamIsim: `${s.adi?.toLowerCase()} ${s.soyadi?.toLowerCase()}`,
       tersIsim: `${s.soyadi?.toLowerCase()} ${s.adi?.toLowerCase()}`,
+      daireNo: s.daire_no ? String(s.daire_no) : '',
     }))
 
     const eslesen = []
@@ -150,15 +151,21 @@ export default function AidatAyarlarPage() {
       // Sakin eşleştir
       let eslesenSakin = null
       for (const s of sakinEslestirme) {
-        const adVar   = s.ad.length >= 3 && aciklama.includes(s.ad)
-        const soyadVar = s.soyad.length >= 3 && aciklama.includes(s.soyad)
-        const tamIsimVar = aciklama.includes(s.tamIsim)
+        const tamIsimVar  = aciklama.includes(s.tamIsim)
         const tersIsimVar = aciklama.includes(s.tersIsim)
+        const adVar       = s.ad.length >= 3 && aciklama.includes(s.ad)
+        const soyadVar    = s.soyad.length >= 3 && aciklama.includes(s.soyad)
 
-        // Tam isim geçiyorsa kesin eşleşme
+        // Daire no — "DAİRE 51", " 51 ", "D51", "D.51" gibi kalıpları ara
+        const daireKalip  = s.daireNo
+          ? new RegExp(`(daire\\s*${s.daireNo}|\\bd\\.?${s.daireNo}\\b|\\s${s.daireNo}\\s|^${s.daireNo}\\s|\\s${s.daireNo}$)`)
+          : null
+        const daireVar    = daireKalip && daireKalip.test(aciklama)
+
+        // Öncelik sırası: tam isim > daire no > ad+soyad birlikte
         if (tamIsimVar || tersIsimVar) { eslesenSakin = s; break }
-        // Hem ad hem soyad ayrı ayrı geçiyorsa da eşleşme say
-        if (adVar && soyadVar) { eslesenSakin = s; break }
+        if (daireVar)                  { eslesenSakin = s; break }
+        if (adVar && soyadVar)         { eslesenSakin = s; break }
       }
 
       if (eslesenSakin) {
