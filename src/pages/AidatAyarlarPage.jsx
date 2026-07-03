@@ -193,9 +193,11 @@ export default function AidatAyarlarPage() {
   async function odediIsaretle() {
     if (!sonuclar?.eslesen?.length) return
     const bugun = new Date().toISOString().split('T')[0]
+    const tutar = parseFloat(ayarlar.aidat_tutari) || 500
     let isaretlen = 0
 
     for (const { sakin } of sonuclar.eslesen) {
+      // Aidat kaydını bul
       const { data: aidat } = await supabase
         .from('aidatlar')
         .select('id, odendi')
@@ -204,8 +206,22 @@ export default function AidatAyarlarPage() {
         .eq('ay', eslesmeAy)
         .single()
 
-      if (aidat && !aidat.odendi) {
-        await supabase.from('aidatlar').update({ odendi: true, odeme_tarihi: bugun }).eq('id', aidat.id)
+      if (aidat) {
+        // Kayıt var, güncelle
+        if (!aidat.odendi) {
+          await supabase.from('aidatlar').update({ odendi: true, odeme_tarihi: bugun }).eq('id', aidat.id)
+          isaretlen++
+        }
+      } else {
+        // Kayıt yok, oluştur ve ödendi işaretle
+        await supabase.from('aidatlar').insert({
+          sakin_id: sakin.id,
+          yil: eslesmeYil,
+          ay: eslesmeAy,
+          tutar,
+          odendi: true,
+          odeme_tarihi: bugun
+        })
         isaretlen++
       }
     }
