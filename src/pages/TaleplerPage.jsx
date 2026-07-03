@@ -4,27 +4,34 @@ import { useAuth } from '../hooks/useAuth'
 
 const KATEGORİLER = [
   { value: 'elektrik', label: '⚡ Elektrik' },
-  { value: 'su', label: '💧 Su' },
-  { value: 'asansor', label: '🛗 Asansör' },
-  { value: 'bahce', label: '🌿 Bahçe' },
+  { value: 'su',       label: '💧 Su' },
+  { value: 'asansor',  label: '🛗 Asansör' },
+  { value: 'bahce',    label: '🌿 Bahçe' },
   { value: 'guvenlik', label: '🔒 Güvenlik' },
-  { value: 'diger', label: '🔧 Diğer' },
+  { value: 'diger',    label: '🔧 Diğer' },
 ]
 
-const DURUM_STİL = { bekliyor: 'rozet-bekliyor', inceleniyor: 'rozet-inceleniyor', tamamlandi: 'rozet-tamamlandi', iptal: 'rozet-bekliyor' }
+const DURUM_STİL   = { bekliyor: 'rozet-bekliyor', inceleniyor: 'rozet-inceleniyor', tamamlandi: 'rozet-tamamlandi', iptal: 'rozet-bekliyor' }
 const DURUM_ETİKET = { bekliyor: 'Bekliyor', inceleniyor: 'İnceleniyor', tamamlandi: 'Tamamlandı', iptal: 'İptal' }
+const ONCELIK_STİL = { acil: 'var(--turuncu)', yuksek: 'var(--sari)', normal: 'var(--kenarlık)', dusuk: 'var(--kenarlık)' }
 
 export default function TaleplerPage() {
   const { sakin, isAdmin } = useAuth()
-  const [talepler, setTalepler] = useState([])
+  const [talepler,   setTalepler]   = useState([])
   const [yukleniyor, setYukleniyor] = useState(true)
-  const [yeniForm, setYeniForm] = useState(false)
+  const [yeniForm,   setYeniForm]   = useState(false)
+  const [arsivGoster, setArsivGoster] = useState(false)
   const [form, setForm] = useState({ kategori: 'diger', baslik: '', aciklama: '', oncelik: 'normal' })
 
-  useEffect(() => { fetchTalepler() }, [])
+  useEffect(() => { fetchTalepler() }, [arsivGoster])
 
   async function fetchTalepler() {
-    let q = supabase.from('talepler').select('*, sakinler(adi, soyadi, daire)').order('created_at', { ascending: false })
+    setYukleniyor(true)
+    let q = supabase
+      .from('talepler')
+      .select('*, sakinler(adi, soyadi, daire_no, daire)')
+      .eq('arsivlendi', arsivGoster)
+      .order('created_at', { ascending: false })
     if (!isAdmin && sakin) q = q.eq('sakin_id', sakin.id)
     const { data } = await q
     setTalepler(data || [])
@@ -45,17 +52,43 @@ export default function TaleplerPage() {
     fetchTalepler()
   }
 
-  const tarih = (str) => new Date(str).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' })
+  async function arsivle(id) {
+    if (!confirm('Bu talep arşivlenecek ve ana listeden kalkacak. Devam edilsin mi?')) return
+    await supabase.from('talepler').update({ arsivlendi: true }).eq('id', id)
+    fetchTalepler()
+  }
+
+  async function arsivdenCikar(id) {
+    await supabase.from('talepler').update({ arsivlendi: false }).eq('id', id)
+    fetchTalepler()
+  }
+
+  const tarih = (str) => new Date(str).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' })
 
   return (
     <div className="sayfa">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1 className="sayfa-baslik" style={{ marginBottom: 0 }}>Arıza & Talepler</h1>
-        {sakin && (
-          <button className="btn btn-ikincil" onClick={() => setYeniForm(!yeniForm)} style={{ padding: '8px 14px', fontSize: 13 }}>
-            {yeniForm ? '✕ Kapat' : '+ Yeni Talep'}
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {isAdmin && (
+            <button
+              className="btn"
+              onClick={() => setArsivGoster(!arsivGoster)}
+              style={{
+                fontSize: 12, padding: '8px 12px',
+                background: arsivGoster ? 'var(--mavi-bg)' : 'var(--yüzey)',
+                color: arsivGoster ? 'var(--mavi)' : 'var(--metin3)',
+                border: '0.5px solid var(--kenarlık)'
+              }}>
+              📦 {arsivGoster ? 'Aktif Talepler' : 'Arşiv'}
+            </button>
+          )}
+          {sakin && !arsivGoster && (
+            <button className="btn btn-ikincil" onClick={() => setYeniForm(!yeniForm)} style={{ padding: '8px 14px', fontSize: 13 }}>
+              {yeniForm ? '✕ Kapat' : '+ Yeni Talep'}
+            </button>
+          )}
+        </div>
       </div>
 
       {yeniForm && (
@@ -93,13 +126,13 @@ export default function TaleplerPage() {
         <div className="yukleniyor">Yükleniyor...</div>
       ) : talepler.length === 0 ? (
         <div className="bos-durum">
-          <div className="bos-durum-ikon">🔧</div>
-          <p>Henüz talep yok.</p>
+          <div className="bos-durum-ikon">{arsivGoster ? '📦' : '🔧'}</div>
+          <p>{arsivGoster ? 'Arşivde talep yok.' : 'Henüz talep yok.'}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {talepler.map(t => (
-            <div key={t.id} className="kart">
+            <div key={t.id} className="kart" style={{ borderLeft: `3px solid ${ONCELIK_STİL[t.oncelik]}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                 <div>
                   <span style={{ fontSize: 13, color: 'var(--metin3)' }}>
@@ -107,20 +140,42 @@ export default function TaleplerPage() {
                   </span>
                   {isAdmin && t.sakinler && (
                     <span style={{ fontSize: 12, color: 'var(--metin3)', marginLeft: 6 }}>
-                      — {t.sakinler.adi} (Daire {t.sakinler.daire})
+                      — {t.sakinler.adi} (D.{t.sakinler.daire_no || t.sakinler.daire})
                     </span>
                   )}
                 </div>
                 <span className={`rozet ${DURUM_STİL[t.durum]}`}>{DURUM_ETİKET[t.durum]}</span>
               </div>
+
               <p style={{ fontWeight: 500, marginBottom: t.aciklama ? 4 : 0 }}>{t.baslik}</p>
               {t.aciklama && <p style={{ fontSize: 13, color: 'var(--metin2)' }}>{t.aciklama}</p>}
-              {isAdmin && t.durum !== 'tamamlandi' && (
-                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                  {t.durum === 'bekliyor' && (
-                    <button className="btn btn-ikincil" style={{ fontSize: 12, padding: '5px 10px' }} onClick={() => durumGuncelle(t.id, 'inceleniyor')}>İncelemeye Al</button>
+
+              {isAdmin && (
+                <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                  {!arsivGoster && (
+                    <>
+                      {t.durum === 'bekliyor' && (
+                        <button className="btn btn-ikincil" style={{ fontSize: 12, padding: '5px 10px' }}
+                          onClick={() => durumGuncelle(t.id, 'inceleniyor')}>İncelemeye Al</button>
+                      )}
+                      {t.durum === 'inceleniyor' && (
+                        <button className="btn" style={{ fontSize: 12, padding: '5px 10px', background: 'var(--yesil-bg)', color: 'var(--yesil)' }}
+                          onClick={() => durumGuncelle(t.id, 'tamamlandi')}>Tamamlandı</button>
+                      )}
+                      {t.durum === 'bekliyor' && (
+                        <button className="btn" style={{ fontSize: 12, padding: '5px 10px', background: 'var(--turuncu-bg)', color: 'var(--turuncu)' }}
+                          onClick={() => durumGuncelle(t.id, 'iptal')}>İptal</button>
+                      )}
+                      {(t.durum === 'tamamlandi' || t.durum === 'iptal') && (
+                        <button className="btn" style={{ fontSize: 12, padding: '5px 10px', background: 'var(--yüzey)', color: 'var(--metin3)', border: '0.5px solid var(--kenarlık)' }}
+                          onClick={() => arsivle(t.id)}>📦 Arşivle</button>
+                      )}
+                    </>
                   )}
-                  <button className="btn" style={{ fontSize: 12, padding: '5px 10px', background: 'var(--yesil-bg)', color: 'var(--yesil)' }} onClick={() => durumGuncelle(t.id, 'tamamlandi')}>Tamamlandı</button>
+                  {arsivGoster && (
+                    <button className="btn btn-ikincil" style={{ fontSize: 12, padding: '5px 10px' }}
+                      onClick={() => arsivdenCikar(t.id)}>↩ Arşivden Çıkar</button>
+                  )}
                 </div>
               )}
             </div>
