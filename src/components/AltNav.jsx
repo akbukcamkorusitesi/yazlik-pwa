@@ -5,7 +5,7 @@ const MENÜ = [
   { yol: '/haberler',  ikon: '📰', etiket: 'Haberler'  },
   { yol: '/rehber',    ikon: '👥', etiket: 'Rehber'    },
   { yol: '/talepler',  ikon: '🔧', etiket: 'Talepler'  },
-  { yol: '/aidatlar',  ikon: '💰', etiket: 'Aidatlar'  },
+ // { yol: '/aidatlar',  ikon: '💰', etiket: 'Aidatlar'  },
   { yol: '/profil',    ikon: '👤', etiket: 'Profil'    },
 ]
 
