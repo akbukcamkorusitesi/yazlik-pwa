@@ -71,8 +71,8 @@ export default function HaberlerPage() {
 
     if (error || !yeniHaber) { setKaydediliyor(false); return }
 
-    // Dosyaları yükle — ref'ten oku (state closure sorununu önler)
-    const yuklenecekler = dosyaListesi.current
+    // Dosyaları yükle — direkt input elementinden oku
+    const yuklenecekler = dosyaRef.current?.files ? Array.from(dosyaRef.current.files) : dosyaListesi.current
     let kapakUrl = null
     for (const dosya of yuklenecekler) {
       const uzanti = dosya.name.split('.').pop().toLowerCase()
