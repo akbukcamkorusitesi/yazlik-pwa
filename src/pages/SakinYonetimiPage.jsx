@@ -449,7 +449,6 @@ export default function SakinYonetimiPage() {
             <div className="ayirici" />
 
             {[
-              ['TC/Web', detayAcik.tc_kimlik],
               ['Doğum Tarihi', detayAcik.dogum_tarihi ? new Date(detayAcik.dogum_tarihi).toLocaleDateString('tr-TR') : null],
               ['Doğum Yeri', detayAcik.dogum_yeri],
               ['Meslek', detayAcik.meslek],
@@ -471,9 +470,31 @@ export default function SakinYonetimiPage() {
               </div>
             ))}
 
+            {/* Yönetim üyeliği */}
+            <div className="ayirici" style={{ marginTop: '0.75rem' }} />
+            <div style={{ display: 'flex', gap: 8, marginTop: '0.75rem' }}>
+              <button
+                className="btn"
+                style={{
+                  flex: 1, fontSize: 12,
+                  background: detayAcik.yonetim_uyesi ? 'var(--turuncu-bg)' : 'var(--mavi-bg)',
+                  color: detayAcik.yonetim_uyesi ? 'var(--turuncu)' : 'var(--mavi)'
+                }}
+                onClick={async () => {
+                  await supabase.from('sakinler').update({
+                    yonetim_uyesi: !detayAcik.yonetim_uyesi,
+                    yonetim_gorevi: !detayAcik.yonetim_uyesi ? 'Üye' : null
+                  }).eq('id', detayAcik.id)
+                  fetchSakinler()
+                  setDetayAcik(null)
+                }}>
+                {detayAcik.yonetim_uyesi ? '✕ Yönetimden Çıkar' : '🏛️ Yönetim Üyesi Yap'}
+              </button>
+            </div>
+
             <button
               className="btn btn-ikincil"
-              style={{ marginTop: '1rem', width: '100%' }}
+              style={{ marginTop: '0.75rem', width: '100%' }}
               onClick={() => setDetayAcik(null)}>
               Kapat
             </button>
@@ -590,7 +611,7 @@ export default function SakinYonetimiPage() {
                 </div>
               </div>
               <div className="form-grup">
-                <label className="form-etiket">TC/Web Girişi</label>
+                <label className="form-etiket">Web Girişi</label>
                 <input className="form-girdi" value={form.tc_kimlik} onChange={e => setForm(f => ({...f, tc_kimlik: e.target.value}))} />
               </div>
 
