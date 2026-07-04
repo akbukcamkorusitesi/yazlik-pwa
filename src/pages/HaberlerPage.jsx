@@ -16,6 +16,7 @@ export default function HaberlerPage() {
   const [yeniForm,     setYeniForm]     = useState(false)
   const [form,         setForm]         = useState({ baslik: '', icerik: '' })
   const [dosyalar,     setDosyalar]     = useState([]) // seçilen dosyalar
+  const dosyaListesi = useRef([]) // ref ile de tut
   const [yuklenenler,  setYuklenenler]  = useState([]) // progress
   const [kaydediliyor, setKaydediliyor] = useState(false)
   const dosyaRef = useRef()
@@ -70,9 +71,10 @@ export default function HaberlerPage() {
 
     if (error || !yeniHaber) { setKaydediliyor(false); return }
 
-    // Dosyaları yükle
+    // Dosyaları yükle — ref'ten oku (state closure sorununu önler)
+    const yuklenecekler = dosyaListesi.current
     let kapakUrl = null
-    for (const dosya of dosyalar) {
+    for (const dosya of yuklenecekler) {
       const uzanti = dosya.name.split('.').pop().toLowerCase()
       const path = `haberler/${yeniHaber.id}/${Date.now()}-${dosya.name}`
       const tip = ['jpg','jpeg','png','gif','webp'].includes(uzanti) ? 'image'
@@ -112,6 +114,7 @@ export default function HaberlerPage() {
 
     setForm({ baslik: '', icerik: '' })
     setDosyalar([])
+    dosyaListesi.current = []
     setYeniForm(false)
     setKaydediliyor(false)
     if (dosyaRef.current) dosyaRef.current.value = ''
@@ -303,7 +306,11 @@ export default function HaberlerPage() {
                 type="file"
                 multiple
                 accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
-                onChange={e => setDosyalar(Array.from(e.target.files))}
+                onChange={e => {
+                  const liste = Array.from(e.target.files)
+                  setDosyalar(liste)
+                  dosyaListesi.current = liste
+                }}
                 style={{ fontSize: 13 }}
               />
               {dosyalar.length > 0 && (
