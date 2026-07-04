@@ -74,9 +74,10 @@ export default function HaberlerPage() {
     // Dosyaları yükle — direkt input elementinden oku
     const yuklenecekler = dosyaRef.current?.files ? Array.from(dosyaRef.current.files) : dosyaListesi.current
     let kapakUrl = null
-    for (const dosya of yuklenecekler) {
+    for (let i = 0; i < yuklenecekler.length; i++) {
+      const dosya = yuklenecekler[i]
       const uzanti = dosya.name.split('.').pop().toLowerCase()
-      const path = `haberler/${yeniHaber.id}/${Date.now()}-${dosya.name}`
+      const path = `haberler/${yeniHaber.id}/${i}-${Date.now()}-${dosya.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
       const tip = ['jpg','jpeg','png','gif','webp'].includes(uzanti) ? 'image'
                 : uzanti === 'pdf' ? 'pdf' : 'diger'
 
@@ -87,6 +88,7 @@ export default function HaberlerPage() {
         .upload(path, dosya, { cacheControl: '3600' })
 
       if (uploadError) {
+        console.error('Upload hatası:', dosya.name, uploadError)
         setYuklenenler(prev => prev.map(u => u.name === dosya.name ? {...u, durum: 'hata'} : u))
         continue
       }
