@@ -118,7 +118,7 @@ export default function SakinYonetimiPage() {
       ev_adresi: s.ev_adresi || '', plaka: s.plaka || '', cocuk_sayisi: s.cocuk_sayisi ?? '',
       aciklama: s.aciklama || '', fotograf_url: s.fotograf_url || '',
       dogum_tarihi: s.dogum_tarihi || '', dogum_yeri: s.dogum_yeri || '', meslek: s.meslek || '',
-      konum: s.konum || 0
+      konum: parseInt(s.konum) || 0
     })
     setDuzenlenenId(s.id)
     setFormAcik(true)
@@ -175,7 +175,7 @@ export default function SakinYonetimiPage() {
       daire_no: form.daire_no ? parseInt(form.daire_no) : null,
       cocuk_sayisi: form.cocuk_sayisi !== '' ? parseInt(form.cocuk_sayisi) : null,
       dogum_tarihi: form.dogum_tarihi || null,
-      konum: form.konum ? 1 : 0
+      konum: parseInt(form.konum) || 0
     }
 
     let sonuc
@@ -711,10 +711,10 @@ export default function SakinYonetimiPage() {
                       onClick={() => setForm(f => ({...f, konum: val}))}
                       style={{
                         flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, cursor: 'pointer',
-                        border: `1.5px solid ${form.konum === val ? border : 'var(--kenarlık)'}`,
-                        background: form.konum === val ? bg : '#fff',
-                        color: form.konum === val ? color : 'var(--metin3)',
-                        fontWeight: form.konum === val ? 600 : 400
+                        border: `1.5px solid ${parseInt(form.konum) === val ? border : 'var(--kenarlık)'}`,
+                        background: parseInt(form.konum) === val ? bg : '#fff',
+                        color: parseInt(form.konum) === val ? color : 'var(--metin3)',
+                        fontWeight: parseInt(form.konum) === val ? 600 : 400
                       }}>
                       {label}
                     </button>
