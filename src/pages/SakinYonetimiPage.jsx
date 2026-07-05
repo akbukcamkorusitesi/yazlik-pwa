@@ -451,6 +451,7 @@ export default function SakinYonetimiPage() {
             {[
               ['Doğum Tarihi', detayAcik.dogum_tarihi ? new Date(detayAcik.dogum_tarihi).toLocaleDateString('tr-TR') : null],
               ['Doğum Yeri', detayAcik.dogum_yeri],
+              ['T.C/Web', detayAcik.tc_kimlik],
               ['Meslek', detayAcik.meslek],
               ['Eş Adı', detayAcik.es_adi],
               ['Çocuk Sayısı', detayAcik.cocuk_sayisi],
