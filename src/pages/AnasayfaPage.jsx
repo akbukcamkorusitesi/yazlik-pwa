@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import ReactMarkdown from 'react-markdown'
+import MetinEditoru from '../components/MetinEditoru'
 
 const ONEM_ETİKETLER = { normal: 'Normal', onemli: 'Önemli', acil: 'Acil' }
 
@@ -29,6 +31,15 @@ export default function AnasayfaPage() {
     setForm({ baslik: '', icerik: '', onem: 'normal' })
     setYeniForm(false)
     fetchDuyurular()
+
+    // Sakinlere push bildirim gönder (hata olsa bile duyuru zaten kaydedildi, sessizce geç)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      await supabase.functions.invoke('bildirim-gonder', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { baslik: `📢 ${form.baslik}`, icerik: form.icerik }
+      })
+    } catch (e) { /* bildirim gönderilemese de duyuru yayınlandı, sorun değil */ }
   }
 
   async function duyuruSil(id) {
@@ -66,7 +77,7 @@ export default function AnasayfaPage() {
             </div>
             <div className="form-grup">
               <label className="form-etiket">İçerik</label>
-              <textarea className="form-girdi" rows={3} value={form.icerik} onChange={e => setForm(f => ({...f, icerik: e.target.value}))} required style={{ resize: 'vertical' }} />
+              <MetinEditoru rows={4} value={form.icerik} onChange={v => setForm(f => ({...f, icerik: v}))} placeholder="Duyuru içeriğini yazın..." />
             </div>
             <div className="form-grup">
               <label className="form-etiket">Önem</label>
@@ -96,7 +107,9 @@ export default function AnasayfaPage() {
                 <h3 style={{ fontSize: 15, fontWeight: 600 }}>{d.baslik}</h3>
                 <span className={`rozet rozet-${d.onem}`}>{ONEM_ETİKETLER[d.onem]}</span>
               </div>
-              <p style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8 }}>{d.icerik}</p>
+              <div className="md-icerik" style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
+                <ReactMarkdown>{d.icerik}</ReactMarkdown>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{tarihFormat(d.created_at)}</span>
                 {isAdmin && (
