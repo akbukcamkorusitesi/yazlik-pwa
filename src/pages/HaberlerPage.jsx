@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import ReactMarkdown from 'react-markdown'
+import MetinEditoru from '../components/MetinEditoru'
 
 export default function HaberlerPage() {
   const { sakin, isAdmin } = useAuth()
@@ -195,9 +197,8 @@ export default function HaberlerPage() {
               </div>
               <div className="form-grup">
                 <label className="form-etiket">İçerik</label>
-                <textarea className="form-girdi" rows={6} value={duzenlemeForm.icerik}
-                  onChange={e => setDuzenlemeForm(f => ({...f, icerik: e.target.value}))}
-                  required style={{ resize: 'vertical' }} />
+                <MetinEditoru rows={6} value={duzenlemeForm.icerik}
+                  onChange={v => setDuzenlemeForm(f => ({...f, icerik: v}))} />
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button className="btn btn-ana" type="submit" disabled={duzenleniyor} style={{ flex: 1 }}>
@@ -217,7 +218,9 @@ export default function HaberlerPage() {
             )}
             <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 6 }}>{tarih(acikHaber.created_at)}</p>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{acikHaber.baslik}</h2>
-            <p style={{ fontSize: 14, color: 'var(--metin2)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{acikHaber.icerik}</p>
+            <div className="md-icerik" style={{ fontSize: 14, color: 'var(--metin2)', lineHeight: 1.7 }}>
+              <ReactMarkdown>{acikHaber.icerik}</ReactMarkdown>
+            </div>
 
             {isAdmin && (
               <div style={{ display: 'flex', gap: 8, marginTop: '1rem' }}>
@@ -338,8 +341,9 @@ export default function HaberlerPage() {
             </div>
             <div className="form-grup">
               <label className="form-etiket">İçerik</label>
-              <textarea className="form-girdi" rows={5} value={form.icerik} onChange={e => setForm(f => ({...f, icerik: e.target.value}))}
-                required style={{ resize: 'vertical' }} placeholder="Haber detaylarını yazın..." />
+                <MetinEditoru rows={5} value={form.icerik}
+                  onChange={v => setForm(f => ({...f, icerik: v}))}
+                  placeholder="Haber detaylarını yazın..." />
             </div>
             <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: '0.75rem' }}>
               💡 Fotoğraf ve PDF eklemek için haberi yayınladıktan sonra haberin içine girin.
