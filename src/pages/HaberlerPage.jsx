@@ -368,9 +368,12 @@ export default function HaberlerPage() {
               )}
               <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 4 }}>{tarih(h.created_at)}</p>
               <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{h.baslik}</h3>
-              <p style={{ fontSize: 13, color: 'var(--metin2)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                {h.icerik}
-              </p>
+              <div className="md-icerik" style={{
+                fontSize: 13, color: 'var(--metin2)',
+                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+              }}>
+                <ReactMarkdown>{h.icerik}</ReactMarkdown>
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                 <p style={{ fontSize: 12, color: 'var(--yesil)' }}>Devamını oku →</p>
                 {h.haber_dosyalari?.length > 0 && (
