@@ -2,11 +2,13 @@ import { useRef } from 'react'
 
 // Basit Markdown toolbar butonları
 const BUTONLAR = [
-  { etiket: 'B', title: 'Kalın', once: '**', sonra: '**', ornek: 'kalın metin' },
-  { etiket: 'I', title: 'İtalik', once: '*', sonra: '*', ornek: 'italik metin' },
-  { etiket: 'H', title: 'Başlık', once: '## ', sonra: '', ornek: 'Başlık' },
-  { etiket: '—', title: 'Çizgi', once: '\n---\n', sonra: '', ornek: '' },
-  { etiket: '•', title: 'Liste', once: '\n- ', sonra: '', ornek: 'madde' },
+  { etiket: 'B',  title: 'Kalın',          once: '**',   sonra: '**',  ornek: 'kalın metin' },
+  { etiket: 'I',  title: 'İtalik',          once: '*',    sonra: '*',   ornek: 'italik metin' },
+  { etiket: 'U',  title: 'Altı Çizgili',    once: '<u>',  sonra: '</u>', ornek: 'altı çizgili' },
+  { etiket: 'S',  title: 'Üstü Çizgili',   once: '~~',   sonra: '~~',  ornek: 'üstü çizgili' },
+  { etiket: 'H',  title: 'Başlık',          once: '## ',  sonra: '',    ornek: 'Başlık' },
+  { etiket: '—',  title: 'Çizgi',           once: '\n---\n', sonra: '', ornek: '' },
+  { etiket: '•',  title: 'Liste',           once: '\n- ', sonra: '',    ornek: 'madde' },
 ]
 
 export default function MetinEditoru({ value, onChange, rows = 6, placeholder = 'Yazın...' }) {
