@@ -25,6 +25,7 @@ export default function AnasayfaPage() {
       .from('duyurular')
       .select('*')
       .eq('yayinda', true)
+      .order('sabitlenen', { ascending: false })
       .order('created_at', { ascending: false })
     setDuyurular(data || [])
     setYukleniyor(false)
@@ -62,6 +63,11 @@ export default function AnasayfaPage() {
     }).eq('id', duzenlenenId)
     setDuzenlenenId(null)
     setDuzenlemeForm(null)
+    fetchDuyurular()
+  }
+
+  async function duyuruSabitle(id, sabitlenen) {
+    await supabase.from('duyurular').update({ sabitlenen: !sabitlenen }).eq('id', id)
     fetchDuyurular()
   }
 
@@ -119,8 +125,10 @@ export default function AnasayfaPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {duyurular.map(d => (
-            <div key={d.id} className="kart" style={{ borderLeft: d.onem === 'acil' ? '3px solid var(--turuncu)' : d.onem === 'onemli' ? '3px solid var(--sari)' : '3px solid var(--yesil)' }}>
-
+            <div key={d.id} className="kart" style={{
+              borderLeft: d.onem === 'acil' ? '3px solid var(--turuncu)' : d.onem === 'onemli' ? '3px solid var(--sari)' : '3px solid var(--yesil)',
+              background: d.sabitlenen ? 'linear-gradient(135deg, #fff 95%, var(--yesil-bg) 100%)' : '#fff'
+            }}>
               {/* Düzenleme formu */}
               {isAdmin && duzenlenenId === d.id ? (
                 <form onSubmit={duyuruDuzenle}>
@@ -154,7 +162,10 @@ export default function AnasayfaPage() {
               ) : (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                    <h3 style={{ fontSize: 15, fontWeight: 600 }}>{d.baslik}</h3>
+                    <h3 style={{ fontSize: 15, fontWeight: 600 }}>
+                      {d.sabitlenen && <span style={{ marginRight: 4 }}>📌</span>}
+                      {d.baslik}
+                    </h3>
                     <span className={`rozet rozet-${d.onem}`}>{ONEM_ETİKETLER[d.onem]}</span>
                   </div>
                   <div className="md-icerik" style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
@@ -164,6 +175,10 @@ export default function AnasayfaPage() {
                     <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{tarihFormat(d.created_at)}</span>
                     {isAdmin && (
                       <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={() => duyuruSabitle(d.id, d.sabitlenen)}
+                          style={{ background: 'none', border: 'none', color: d.sabitlenen ? 'var(--yesil)' : 'var(--metin3)', fontSize: 12, cursor: 'pointer' }}>
+                          {d.sabitlenen ? '📌 Sabiti Kaldır' : '📌 Sabitle'}
+                        </button>
                         <button onClick={() => { setDuzenlenenId(d.id); setDuzenlemeForm({ baslik: d.baslik, icerik: d.icerik, onem: d.onem }) }}
                           style={{ background: 'none', border: 'none', color: 'var(--mavi)', fontSize: 12, cursor: 'pointer' }}>
                           Düzenle
