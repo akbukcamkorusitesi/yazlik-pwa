@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import remarkBreaks from 'remark-breaks'
+import rehypeRaw from 'rehype-raw'
 import MetinEditoru from '../components/MetinEditoru'
 
 export default function HaberlerPage() {
@@ -219,7 +222,7 @@ export default function HaberlerPage() {
             <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 6 }}>{tarih(acikHaber.created_at)}</p>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{acikHaber.baslik}</h2>
             <div className="md-icerik" style={{ fontSize: 14, color: 'var(--metin2)', lineHeight: 1.7 }}>
-              <ReactMarkdown>{acikHaber.icerik}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{acikHaber.icerik}</ReactMarkdown>
             </div>
 
             {isAdmin && (
@@ -372,7 +375,7 @@ export default function HaberlerPage() {
                 fontSize: 13, color: 'var(--metin2)',
                 display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
               }}>
-                <ReactMarkdown>{h.icerik}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{h.icerik}</ReactMarkdown>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                 <p style={{ fontSize: 12, color: 'var(--yesil)' }}>Devamını oku →</p>
