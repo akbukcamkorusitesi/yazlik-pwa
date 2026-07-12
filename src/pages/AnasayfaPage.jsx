@@ -12,6 +12,8 @@ export default function AnasayfaPage() {
   const [yukleniyor, setYukleniyor] = useState(true)
   const [yeniForm, setYeniForm] = useState(false)
   const [form, setForm] = useState({ baslik: '', icerik: '', onem: 'normal' })
+  const [duzenlenenId, setDuzenlenenId] = useState(null)
+  const [duzenlemeForm, setDuzenlemeForm] = useState(null)
 
   useEffect(() => { fetchDuyurular() }, [])
 
@@ -45,6 +47,18 @@ export default function AnasayfaPage() {
   async function duyuruSil(id) {
     if (!confirm('Bu duyuruyu kaldırmak istiyor musunuz?')) return
     await supabase.from('duyurular').update({ yayinda: false }).eq('id', id)
+    fetchDuyurular()
+  }
+
+  async function duyuruDuzenle(e) {
+    e.preventDefault()
+    await supabase.from('duyurular').update({
+      baslik: duzenlemeForm.baslik,
+      icerik: duzenlemeForm.icerik,
+      onem: duzenlemeForm.onem
+    }).eq('id', duzenlenenId)
+    setDuzenlenenId(null)
+    setDuzenlemeForm(null)
     fetchDuyurular()
   }
 
@@ -103,21 +117,63 @@ export default function AnasayfaPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {duyurular.map(d => (
             <div key={d.id} className="kart" style={{ borderLeft: d.onem === 'acil' ? '3px solid var(--turuncu)' : d.onem === 'onemli' ? '3px solid var(--sari)' : '3px solid var(--yesil)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                <h3 style={{ fontSize: 15, fontWeight: 600 }}>{d.baslik}</h3>
-                <span className={`rozet rozet-${d.onem}`}>{ONEM_ETİKETLER[d.onem]}</span>
-              </div>
-              <div className="md-icerik" style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
-                <ReactMarkdown>{d.icerik}</ReactMarkdown>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{tarihFormat(d.created_at)}</span>
-                {isAdmin && (
-                  <button onClick={() => duyuruSil(d.id)} style={{ background: 'none', border: 'none', color: 'var(--metin3)', fontSize: 12, cursor: 'pointer' }}>
-                    Kaldır
-                  </button>
-                )}
-              </div>
+
+              {/* Düzenleme formu */}
+              {isAdmin && duzenlenenId === d.id ? (
+                <form onSubmit={duyuruDuzenle}>
+                  <div className="form-grup">
+                    <label className="form-etiket">Başlık</label>
+                    <input className="form-girdi" value={duzenlemeForm.baslik}
+                      onChange={e => setDuzenlemeForm(f => ({...f, baslik: e.target.value}))} required />
+                  </div>
+                  <div className="form-grup">
+                    <label className="form-etiket">İçerik</label>
+                    <MetinEditoru rows={4} value={duzenlemeForm.icerik}
+                      onChange={v => setDuzenlemeForm(f => ({...f, icerik: v}))} />
+                  </div>
+                  <div className="form-grup">
+                    <label className="form-etiket">Önem</label>
+                    <select className="form-girdi" value={duzenlemeForm.onem}
+                      onChange={e => setDuzenlemeForm(f => ({...f, onem: e.target.value}))}>
+                      <option value="normal">Normal</option>
+                      <option value="onemli">Önemli</option>
+                      <option value="acil">Acil</option>
+                    </select>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn-ana" type="submit" style={{ flex: 1 }}>Kaydet</button>
+                    <button type="button" className="btn" onClick={() => { setDuzenlenenId(null); setDuzenlemeForm(null) }}
+                      style={{ background: 'var(--yüzey)', color: 'var(--metin2)', border: '0.5px solid var(--kenarlık)' }}>
+                      Vazgeç
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 600 }}>{d.baslik}</h3>
+                    <span className={`rozet rozet-${d.onem}`}>{ONEM_ETİKETLER[d.onem]}</span>
+                  </div>
+                  <div className="md-icerik" style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
+                    <ReactMarkdown>{d.icerik}</ReactMarkdown>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{tarihFormat(d.created_at)}</span>
+                    {isAdmin && (
+                      <div style={{ display: 'flex', gap: 10 }}>
+                        <button onClick={() => { setDuzenlenenId(d.id); setDuzenlemeForm({ baslik: d.baslik, icerik: d.icerik, onem: d.onem }) }}
+                          style={{ background: 'none', border: 'none', color: 'var(--mavi)', fontSize: 12, cursor: 'pointer' }}>
+                          Düzenle
+                        </button>
+                        <button onClick={() => duyuruSil(d.id)}
+                          style={{ background: 'none', border: 'none', color: 'var(--metin3)', fontSize: 12, cursor: 'pointer' }}>
+                          Kaldır
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
