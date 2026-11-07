@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/yazlik-pwa/',   // GitHub Pages repo adı
-  build: {
-    target: ['es2015', 'chrome63', 'safari12'],  // LG TV ve eski tarayıcı desteği
-  },
   plugins: [
     react(),
+    legacy({
+      targets: ['chrome >= 58', 'safari >= 11', 'firefox >= 57'],
+      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'icons/*.png'],
