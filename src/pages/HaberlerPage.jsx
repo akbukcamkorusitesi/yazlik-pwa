@@ -7,6 +7,22 @@ import remarkBreaks from 'remark-breaks'
 import rehypeRaw from 'rehype-raw'
 import MetinEditoru from '../components/MetinEditoru'
 
+// Eski tarayıcı tespiti (LG TV gibi) — ES6 class desteklenmiyorsa düz metin göster
+const IS_OLD_BROWSER = (() => {
+  try { new Function('return class {}')(); return false } catch (e) { return true }
+})()
+
+function GuvenliMarkdown({ children }) {
+  if (IS_OLD_BROWSER) {
+    return <span style={{ whiteSpace: 'pre-wrap' }}>{children}</span>
+  }
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>
+      {children}
+    </ReactMarkdown>
+  )
+}
+
 export default function HaberlerPage() {
   const { sakin, isAdmin } = useAuth()
   const [haberler,     setHaberler]     = useState([])
@@ -222,7 +238,7 @@ export default function HaberlerPage() {
             <p style={{ fontSize: 12, color: 'var(--metin3)', marginBottom: 6 }}>{tarih(acikHaber.created_at)}</p>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 10 }}>{acikHaber.baslik}</h2>
             <div className="md-icerik" style={{ fontSize: 14, color: 'var(--metin2)', lineHeight: 1.7 }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{acikHaber.icerik}</ReactMarkdown>
+              <GuvenliMarkdown>{acikHaber.icerik}</GuvenliMarkdown>
             </div>
 
             {isAdmin && (
@@ -375,7 +391,7 @@ export default function HaberlerPage() {
                 fontSize: 13, color: 'var(--metin2)',
                 display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
               }}>
-                <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{h.icerik}</ReactMarkdown>
+                <GuvenliMarkdown>{h.icerik}</GuvenliMarkdown>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                 <p style={{ fontSize: 12, color: 'var(--yesil)' }}>Devamını oku →</p>
