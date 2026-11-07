@@ -7,6 +7,22 @@ import remarkBreaks from 'remark-breaks'
 import rehypeRaw from 'rehype-raw'
 import MetinEditoru from '../components/MetinEditoru'
 
+// Eski tarayıcı tespiti (LG TV gibi) — ES6 class desteklenmiyorsa düz metin göster
+const IS_OLD_BROWSER = (() => {
+  try { new Function('return class {}')(); return false } catch (e) { return true }
+})()
+
+function GuvenliMarkdown({ children }) {
+  if (IS_OLD_BROWSER) {
+    return <span style={{ whiteSpace: 'pre-wrap' }}>{children}</span>
+  }
+  return (
+    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>
+      {children}
+    </ReactMarkdown>
+  )
+}
+
 const ONEM_ETİKETLER = { normal: 'Normal', onemli: 'Önemli', acil: 'Acil' }
 
 export default function AnasayfaPage() {
@@ -169,7 +185,7 @@ export default function AnasayfaPage() {
                     <span className={`rozet rozet-${d.onem}`}>{ONEM_ETİKETLER[d.onem]}</span>
                   </div>
                   <div className="md-icerik" style={{ color: 'var(--metin2)', fontSize: 14, marginBottom: 8, lineHeight: 1.6 }}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>{d.icerik}</ReactMarkdown>
+                    <GuvenliMarkdown>{d.icerik}</GuvenliMarkdown>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--metin3)', fontSize: 12 }}>{tarihFormat(d.created_at)}</span>
