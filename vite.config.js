@@ -4,6 +4,9 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/yazlik-pwa/',   // GitHub Pages repo adı
+  build: {
+    target: ['es2015', 'chrome63', 'safari12'],  // LG TV ve eski tarayıcı desteği
+  },
   plugins: [
     react(),
     VitePWA({
