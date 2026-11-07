@@ -8,19 +8,20 @@ import rehypeRaw from 'rehype-raw'
 import MetinEditoru from '../components/MetinEditoru'
 
 // Eski tarayıcı tespiti (LG TV gibi) — ES6 class desteklenmiyorsa düz metin göster
-const IS_OLD_BROWSER = (() => {
-  try { new Function('return class {}')(); return false } catch (e) { return true }
-})()
-
-function GuvenliMarkdown({ children }) {
-  if (IS_OLD_BROWSER) {
-    return <span style={{ whiteSpace: 'pre-wrap' }}>{children}</span>
+class GuvenliMarkdown extends React.Component {
+  constructor(props) { super(props); this.state = { hata: false } }
+  componentDidCatch() { this.setState({ hata: true }) }
+  static getDerivedStateFromError() { return { hata: true } }
+  render() {
+    if (this.state.hata) {
+      return <span style={{ whiteSpace: 'pre-wrap' }}>{this.props.children}</span>
+    }
+    return (
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>
+        {this.props.children}
+      </ReactMarkdown>
+    )
   }
-  return (
-    <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} rehypePlugins={[rehypeRaw]}>
-      {children}
-    </ReactMarkdown>
-  )
 }
 
 const ONEM_ETİKETLER = { normal: 'Normal', onemli: 'Önemli', acil: 'Acil' }
